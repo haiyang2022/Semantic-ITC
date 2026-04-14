@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
     var EDL_ENABLED = true;
     var EDL_STRENGTH = 1.35;
     var EDL_RADIUS_PX = 1.35;
@@ -387,8 +387,7 @@
         var radius = Math.max(this.leftMetrics.boundingRadius, this.rightMetrics.boundingRadius);
 
         var fovV = this.camera.fov * Math.PI / 180;
-        var halfAspect = this.camera.aspect * 0.5;
-        var fovH = 2 * Math.atan(Math.tan(fovV * 0.5) * Math.max(halfAspect, 1e-4));
+        var fovH = 2 * Math.atan(Math.tan(fovV * 0.5) * Math.max(this.camera.aspect, 1e-4));
 
         var distV = halfY / Math.tan(fovV * 0.5);
         var distH = halfX / Math.tan(fovH * 0.5);
@@ -416,7 +415,7 @@
     CompareViewer.prototype.resize = function () {
         var width = Math.max(this.container.clientWidth, 1);
         var height = Math.max(this.container.clientHeight, 1);
-        this.camera.aspect = width / height;
+        this.camera.aspect = Math.max((width * 0.5) / Math.max(height, 1), 1e-4);
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(width, height, true);
 
