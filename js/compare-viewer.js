@@ -2,43 +2,19 @@
     var EDL_ENABLED = true;
     var EDL_STRENGTH = 1.35;
     var EDL_RADIUS_PX = 1.35;
-
-    var LEFT_FILE = "./data/merged_voxel0.05_xyzi.asc";
-    var RIGHT_FILE = "./data/merged_voxel0.05_xyzrgb.asc";
     var MAX_POINTS = 1200000;
-    var FIXED_POINT_SIZE = 2.0;
+    var POINT_SIZE = 2.0;
+
+    var MODELS = [
+        { key: "region2-1", label: "Learning Area", path: "./data/learning_area.asc" },
+        { key: "region1-1", label: "Corridor Area", path: "./data/corridor_area.asc" },
+        { key: "baseline", label: "Classroom", path: "./data/classroom.asc" },
+        { key: "1310", label: "Meeting Room", path: "./data/meeting_room.asc" },
+        { key: "2104", label: "Office", path: "./data/office.asc" }
+    ];
 
     function clamp01(v) {
         return Math.min(Math.max(v, 0), 1);
-    }
-
-    function lerp(a, b, t) {
-        return a + (b - a) * t;
-    }
-
-    function intensityToColor(t) {
-        var stops = [
-            [0.0, [0.231, 0.298, 0.753]],
-            [0.25, [0.266, 0.690, 0.984]],
-            [0.5, [0.865, 0.865, 0.865]],
-            [0.75, [0.984, 0.561, 0.266]],
-            [1.0, [0.706, 0.016, 0.149]]
-        ];
-
-        t = clamp01(t);
-        for (var i = 0; i < stops.length - 1; i++) {
-            var a = stops[i];
-            var b = stops[i + 1];
-            if (t >= a[0] && t <= b[0]) {
-                var local = (t - a[0]) / Math.max(b[0] - a[0], 1e-8);
-                return [
-                    lerp(a[1][0], b[1][0], local),
-                    lerp(a[1][1], b[1][1], local),
-                    lerp(a[1][2], b[1][2], local)
-                ];
-            }
-        }
-        return stops[stops.length - 1][1];
     }
 
     function normalizeAndCenterByBBox(positions) {
@@ -171,134 +147,57 @@
         };
     }
 
-    function parseXYZI(rawText, maxPoints) {
-        var lines = rawText.split(/\r?\n/);
-        var step = Math.max(1, Math.floor(lines.length / maxPoints));
-        var positions = [];
-        var intensities = [];
-        var minI = Infinity;
-        var maxI = -Infinity;
-
-        for (var i = 0; i < lines.length; i += step) {
-            var line = lines[i].trim();
-            if (line.length === 0) {
-                continue;
-            }
-
-            var values = line.split(/\s+/);
-            if (values.length < 4) {
-                continue;
-            }
-
-            var x = Number(values[0]);
-            var y = Number(values[1]);
-            var z = Number(values[2]);
-            var intensity = Number(values[3]);
-
-            if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z) || !Number.isFinite(intensity)) {
-                continue;
-            }
-
-            positions.push(x, y, z);
-            intensities.push(intensity);
-            if (intensity < minI) { minI = intensity; }
-            if (intensity > maxI) { maxI = intensity; }
-        }
-
-        var positionsArray = new Float32Array(positions);
-        var metrics = normalizeAndCenterByBBox(positionsArray);
-        var colors = new Float32Array(intensities.length * 3);
-        var range = Math.max(maxI - minI, 1e-8);
-
-        for (var c = 0; c < intensities.length; c++) {
-            var t = (intensities[c] - minI) / range;
-            var color = intensityToColor(t);
-            var idx = c * 3;
-            colors[idx] = color[0];
-            colors[idx + 1] = color[1];
-            colors[idx + 2] = color[2];
-        }
-
-        return {
-            positions: positionsArray,
-            colors: colors,
-            metrics: metrics,
-            count: positionsArray.length / 3
-        };
-    }
-
-    function makeEDLPack() {
-        return {
-            target: null,
-            scene: null,
-            camera: null,
-            material: null,
-            enabled: false
-        };
-    }
-
-    function CompareViewer() {
+    function Viewer() {
         this.container = document.getElementById("pc-compare-canvas");
-        this.leftStatus = document.getElementById("pc-left-status");
-        this.rightStatus = document.getElementById("pc-right-status");
+        this.status = document.getElementById("pc-view-status");
+        this.title = document.getElementById("pc-current-title");
+        this.selector = document.getElementById("pc-model-selector");
 
-        this.sceneLeft = new THREE.Scene();
-        this.sceneRight = new THREE.Scene();
-        this.groupLeft = new THREE.Group();
-        this.groupRight = new THREE.Group();
-        this.sceneLeft.add(this.groupLeft);
-        this.sceneRight.add(this.groupRight);
-        this.sceneLeft.add(new THREE.AmbientLight(0xffffff, 1.0));
-        this.sceneRight.add(new THREE.AmbientLight(0xffffff, 1.0));
+        this.scene = new THREE.Scene();
+        this.scene.add(new THREE.AmbientLight(0xffffff, 1.0));
 
         this.camera = new THREE.PerspectiveCamera(48, 1, 0.01, 100);
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
         this.renderer.setClearColor(0x000000, 0);
+
         if ("outputColorSpace" in this.renderer && THREE.SRGBColorSpace) {
             this.renderer.outputColorSpace = THREE.SRGBColorSpace;
         } else if ("outputEncoding" in this.renderer && THREE.sRGBEncoding) {
             this.renderer.outputEncoding = THREE.sRGBEncoding;
         }
 
-        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.addEventListener("change", this.render.bind(this));
+        this.controls = null;
+        this.points = null;
+        this.fitMetrics = null;
 
-        this.leftPoints = null;
-        this.rightPoints = null;
-        this.leftMetrics = null;
-        this.rightMetrics = null;
+        this.useEDL = false;
+        this.edlTarget = null;
+        this.edlScene = null;
+        this.edlCamera = null;
+        this.edlMaterial = null;
 
-        this.edlLeft = makeEDLPack();
-        this.edlRight = makeEDLPack();
+        this.currentModel = MODELS[0];
     }
 
-    CompareViewer.prototype.setStatus = function (side, text) {
-        if (side === "left") {
-            this.leftStatus.textContent = text;
-        } else {
-            this.rightStatus.textContent = text;
-        }
-    };
-
-    CompareViewer.prototype.initEDLFor = function (pack) {
+    Viewer.prototype.initEDL = function () {
         if (!EDL_ENABLED || !THREE.DepthTexture) {
             return;
         }
 
         try {
-            pack.target = new THREE.WebGLRenderTarget(1, 1, {
+            this.edlTarget = new THREE.WebGLRenderTarget(1, 1, {
                 minFilter: THREE.LinearFilter,
                 magFilter: THREE.LinearFilter,
                 format: THREE.RGBAFormat,
                 depthBuffer: true,
                 stencilBuffer: false
             });
-            pack.target.depthTexture = new THREE.DepthTexture(1, 1, THREE.UnsignedShortType);
+            this.edlTarget.depthTexture = new THREE.DepthTexture(1, 1, THREE.UnsignedShortType);
 
-            pack.scene = new THREE.Scene();
-            pack.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-            pack.material = new THREE.ShaderMaterial({
+            this.edlScene = new THREE.Scene();
+            this.edlCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+            this.edlMaterial = new THREE.ShaderMaterial({
                 uniforms: {
                     tColor: { value: null },
                     tDepth: { value: null },
@@ -357,43 +256,51 @@
                 transparent: false
             });
 
-            pack.scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), pack.material));
-            pack.enabled = true;
-        } catch (err) {
-            pack.enabled = false;
+            this.edlScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.edlMaterial));
+            this.useEDL = true;
+        } catch (error) {
+            this.useEDL = false;
         }
     };
 
-    CompareViewer.prototype.init = function () {
-        if (!this.container || !this.leftStatus || !this.rightStatus) {
-            return false;
-        }
-
-        this.container.appendChild(this.renderer.domElement);
-        this.initEDLFor(this.edlLeft);
-        this.initEDLFor(this.edlRight);
-        this.resize();
-        return true;
-    };
-
-    CompareViewer.prototype.fitCamera = function () {
-        if (!this.leftMetrics || !this.rightMetrics) {
+    Viewer.prototype.fitCamera = function () {
+        if (this.fitMetrics === null) {
             return;
         }
 
-        var halfX = Math.max(this.leftMetrics.halfX, this.rightMetrics.halfX);
-        var halfY = Math.max(this.leftMetrics.halfY, this.rightMetrics.halfY);
-        var halfZ = Math.max(this.leftMetrics.halfZ, this.rightMetrics.halfZ);
-        var radius = Math.max(this.leftMetrics.boundingRadius, this.rightMetrics.boundingRadius);
+        var halfX = this.fitMetrics.halfX;
+        var halfY = this.fitMetrics.halfY;
+        var halfZ = this.fitMetrics.halfZ;
+        var radius = this.fitMetrics.boundingRadius;
 
         var fovV = this.camera.fov * Math.PI / 180;
         var fovH = 2 * Math.atan(Math.tan(fovV * 0.5) * Math.max(this.camera.aspect, 1e-4));
 
+        var preset = {
+            distanceScale: 1.55,
+            offset: new THREE.Vector3(0.42, 0.62, 1.0)
+        };
+
+        if (this.currentModel && this.currentModel.key === "baseline") {
+            preset.distanceScale = 2.35;
+            preset.offset.set(0.42, 0.62, 1.0);
+        }
+
+        if (this.currentModel && this.currentModel.key === "region2-1") {
+            preset.distanceScale = 2.1;
+            preset.offset.set(0.42, 0.62, -1.0);
+        }
+
+        if (this.currentModel && (this.currentModel.key === "1310" || this.currentModel.key === "2104")) {
+            preset.distanceScale = 2.6;
+        }
+
         var distV = halfY / Math.tan(fovV * 0.5);
         var distH = halfX / Math.tan(fovH * 0.5);
-        var fitDistance = Math.max(distV, distH, halfZ) * 1.45 + 0.08;
+        var fitDistance = Math.max(distV, distH, halfZ) * preset.distanceScale + 0.08;
 
-        this.camera.position.set(0, 0, fitDistance);
+        var dir = preset.offset.clone().normalize();
+        this.camera.position.set(dir.x * fitDistance, dir.y * fitDistance, dir.z * fitDistance);
         this.camera.near = Math.max(0.01, fitDistance - radius * 3.0);
         this.camera.far = fitDistance + radius * 3.0;
         this.camera.lookAt(0, 0, 0);
@@ -402,47 +309,77 @@
         this.controls.target.set(0, 0, 0);
         this.controls.update();
 
-        if (this.edlLeft.enabled) {
-            this.edlLeft.material.uniforms.cameraNear.value = this.camera.near;
-            this.edlLeft.material.uniforms.cameraFar.value = this.camera.far;
-        }
-        if (this.edlRight.enabled) {
-            this.edlRight.material.uniforms.cameraNear.value = this.camera.near;
-            this.edlRight.material.uniforms.cameraFar.value = this.camera.far;
+        if (this.useEDL && this.edlMaterial !== null) {
+            this.edlMaterial.uniforms.cameraNear.value = this.camera.near;
+            this.edlMaterial.uniforms.cameraFar.value = this.camera.far;
         }
     };
 
-    CompareViewer.prototype.resize = function () {
+    Viewer.prototype.resize = function () {
         var width = Math.max(this.container.clientWidth, 1);
         var height = Math.max(this.container.clientHeight, 1);
-        this.camera.aspect = Math.max((width * 0.5) / Math.max(height, 1), 1e-4);
+
+        this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(width, height, true);
 
-        var pr = this.renderer.getPixelRatio();
-        var halfW = Math.max(1, Math.floor(width * pr * 0.5));
-        var fullH = Math.max(1, Math.floor(height * pr));
-
-        [this.edlLeft, this.edlRight].forEach(function (pack) {
-            if (!pack.enabled) {
-                return;
-            }
-            pack.target.setSize(halfW, fullH);
-            pack.target.depthTexture.image.width = halfW;
-            pack.target.depthTexture.image.height = fullH;
-            pack.material.uniforms.resolution.value.set(halfW, fullH);
-        });
+        if (this.useEDL && this.edlTarget !== null && this.edlMaterial !== null) {
+            var pr = this.renderer.getPixelRatio();
+            var rw = Math.max(1, Math.floor(width * pr));
+            var rh = Math.max(1, Math.floor(height * pr));
+            this.edlTarget.setSize(rw, rh);
+            this.edlTarget.depthTexture.image.width = rw;
+            this.edlTarget.depthTexture.image.height = rh;
+            this.edlMaterial.uniforms.resolution.value.set(rw, rh);
+        }
 
         this.fitCamera();
         this.render();
     };
 
-    CompareViewer.prototype.createPoints = function (data) {
+    Viewer.prototype.render = function () {
+        if (this.useEDL && this.edlTarget !== null && this.edlMaterial !== null) {
+            this.renderer.setRenderTarget(this.edlTarget);
+            this.renderer.clear();
+            this.renderer.render(this.scene, this.camera);
+            this.renderer.setRenderTarget(null);
+
+            this.edlMaterial.uniforms.tColor.value = this.edlTarget.texture;
+            this.edlMaterial.uniforms.tDepth.value = this.edlTarget.depthTexture;
+            this.renderer.render(this.edlScene, this.edlCamera);
+        } else {
+            this.renderer.render(this.scene, this.camera);
+        }
+    };
+
+    Viewer.prototype.loadModel = async function (model) {
+        this.currentModel = model;
+        this.title.textContent = model.label;
+        this.status.textContent = "Loading " + model.label + "...";
+
+        var response = await fetch(model.path, { cache: "no-store" });
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status + " loading " + model.path);
+        }
+
+        var text = await response.text();
+        var parsed = parseXYZRGB(text, MAX_POINTS);
+        if (parsed.positions.length === 0) {
+            throw new Error("No valid points in " + model.path);
+        }
+
+        if (this.points !== null) {
+            this.points.geometry.dispose();
+            this.points.material.dispose();
+            this.scene.remove(this.points);
+        }
+
         var geometry = new THREE.BufferGeometry();
-        geometry.setAttribute("position", new THREE.BufferAttribute(data.positions, 3));
-        geometry.setAttribute("color", new THREE.BufferAttribute(data.colors, 3));
+        geometry.setAttribute("position", new THREE.BufferAttribute(parsed.positions, 3));
+        geometry.setAttribute("color", new THREE.BufferAttribute(parsed.colors, 3));
+
         var material = new THREE.PointsMaterial({
-            size: FIXED_POINT_SIZE,
+            size: POINT_SIZE,
             sizeAttenuation: false,
             vertexColors: true,
             opacity: 1,
@@ -450,86 +387,67 @@
             depthWrite: true,
             depthTest: true
         });
-        return new THREE.Points(geometry, material);
-    };
 
-    CompareViewer.prototype.load = async function () {
-        this.setStatus("left", "Loading merged_voxel0.05_xyzi.asc...");
-        this.setStatus("right", "Loading merged_voxel0.05_xyzrgb.asc...");
+        this.points = new THREE.Points(geometry, material);
+        this.scene.add(this.points);
 
-        var leftResp = await fetch(LEFT_FILE, { cache: "no-store" });
-        var rightResp = await fetch(RIGHT_FILE, { cache: "no-store" });
-        if (!leftResp.ok || !rightResp.ok) {
-            throw new Error("Failed to fetch compare point clouds.");
-        }
-
-        var leftText = await leftResp.text();
-        var rightText = await rightResp.text();
-
-        var leftData = parseXYZI(leftText, MAX_POINTS);
-        var rightData = parseXYZRGB(rightText, MAX_POINTS);
-
-        if (this.leftPoints !== null) {
-            this.leftPoints.geometry.dispose();
-            this.leftPoints.material.dispose();
-            this.groupLeft.remove(this.leftPoints);
-        }
-        if (this.rightPoints !== null) {
-            this.rightPoints.geometry.dispose();
-            this.rightPoints.material.dispose();
-            this.groupRight.remove(this.rightPoints);
-        }
-
-        this.leftPoints = this.createPoints(leftData);
-        this.rightPoints = this.createPoints(rightData);
-        this.groupLeft.add(this.leftPoints);
-        this.groupRight.add(this.rightPoints);
-
-        this.leftMetrics = leftData.metrics;
-        this.rightMetrics = rightData.metrics;
-
+        this.fitMetrics = parsed.metrics;
         this.fitCamera();
-        this.setStatus("left", leftData.count.toLocaleString() + " points");
-        this.setStatus("right", rightData.count.toLocaleString() + " points");
+        this.status.textContent = parsed.count.toLocaleString() + " points";
         this.render();
     };
 
-    CompareViewer.prototype.renderPacked = function (scene, pack, x, y, w, h) {
-        if (!pack.enabled) {
-            this.renderer.setViewport(x, y, w, h);
-            this.renderer.setScissor(x, y, w, h);
-            this.renderer.setScissorTest(true);
-            this.renderer.render(scene, this.camera);
-            return;
-        }
+    Viewer.prototype.bindSelector = function () {
+        var self = this;
+        var buttons = this.selector.querySelectorAll(".pc-model-btn");
 
-        this.renderer.setRenderTarget(pack.target);
-        this.renderer.clear();
-        this.renderer.render(scene, this.camera);
-        this.renderer.setRenderTarget(null);
+        buttons.forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                var key = btn.getAttribute("data-model");
+                var target = null;
+                for (var i = 0; i < MODELS.length; i++) {
+                    if (MODELS[i].key === key) {
+                        target = MODELS[i];
+                        break;
+                    }
+                }
+                if (target === null) {
+                    return;
+                }
 
-        pack.material.uniforms.tColor.value = pack.target.texture;
-        pack.material.uniforms.tDepth.value = pack.target.depthTexture;
+                buttons.forEach(function (b) { b.classList.remove("active"); });
+                btn.classList.add("active");
 
-        this.renderer.setViewport(x, y, w, h);
-        this.renderer.setScissor(x, y, w, h);
-        this.renderer.setScissorTest(true);
-        this.renderer.render(pack.scene, pack.camera);
+                self.loadModel(target).catch(function (err) {
+                    self.status.textContent = "Failed to load " + target.label;
+                    console.error(err);
+                });
+            });
+        });
     };
 
-    CompareViewer.prototype.render = function () {
-        var size = this.renderer.getSize(new THREE.Vector2());
-        var w = size.x;
-        var h = size.y;
-        var halfW = Math.floor(w / 2);
+    Viewer.prototype.bindControls = function () {
+        var self = this;
+        var zoomIn = document.getElementById("pc-zoom-in");
+        var zoomOut = document.getElementById("pc-zoom-out");
+        var reset = document.getElementById("pc-reset");
 
-        this.renderer.setScissorTest(true);
-        this.renderer.setClearColor(0xffffff, 1.0);
-
-        this.renderPacked(this.sceneLeft, this.edlLeft, 0, 0, halfW, h);
-        this.renderPacked(this.sceneRight, this.edlRight, halfW, 0, w - halfW, h);
-
-        this.renderer.setScissorTest(false);
+        if (zoomIn) {
+            zoomIn.addEventListener("click", function () {
+                self.renderer.domElement.dispatchEvent(new WheelEvent("wheel", { deltaY: -100, bubbles: true, cancelable: true }));
+            });
+        }
+        if (zoomOut) {
+            zoomOut.addEventListener("click", function () {
+                self.renderer.domElement.dispatchEvent(new WheelEvent("wheel", { deltaY: 100, bubbles: true, cancelable: true }));
+            });
+        }
+        if (reset) {
+            reset.addEventListener("click", function () {
+                self.fitCamera();
+                self.render();
+            });
+        }
     };
 
     function initCompare() {
@@ -537,18 +455,26 @@
             return;
         }
 
-        var viewer = new CompareViewer();
-        if (!viewer.init()) {
+        var viewer = new Viewer();
+        if (!viewer.container || !viewer.status || !viewer.title || !viewer.selector) {
             return;
         }
+
+        viewer.container.appendChild(viewer.renderer.domElement);
+        viewer.controls = new THREE.OrbitControls(viewer.camera, viewer.renderer.domElement);
+        viewer.controls.addEventListener("change", function () { viewer.render(); });
+
+        viewer.initEDL();
+        viewer.resize();
+        viewer.bindSelector();
+        viewer.bindControls();
 
         window.addEventListener("resize", function () {
             viewer.resize();
         });
 
-        viewer.load().catch(function (err) {
-            viewer.setStatus("left", "Failed to load XYZI point cloud");
-            viewer.setStatus("right", "Failed to load XYZRGB point cloud");
+        viewer.loadModel(MODELS[0]).catch(function (err) {
+            viewer.status.textContent = "Failed to load " + MODELS[0].label;
             console.error(err);
         });
     }

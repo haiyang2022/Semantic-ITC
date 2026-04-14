@@ -51,16 +51,26 @@
         <div class="container">
             <h2>Semantic Classes</h2>
             <div id="pc-showcase" class="pc-showcase"></div>
-            <h2 style="margin-top:3rem;">Point Cloud Compare</h2>
-            <p class="pc-compare-desc">Left: XYZI (intensity colormap) | Right: XYZRGB (raw color). Orbit and zoom are synchronized.</p>
+            <h2 style="margin-top:3rem;">Semantic Point Cloud Examples Across Scenes</h2>
+            <div id="pc-model-selector" class="pc-model-selector">
+                <button class="pc-model-btn active" data-model="region2-1">Learning Area</button>
+                <button class="pc-model-btn" data-model="region1-1">Corridor Area</button>
+                <button class="pc-model-btn" data-model="baseline">Classroom</button>
+                <button class="pc-model-btn" data-model="1310">Meeting Room</button>
+                <button class="pc-model-btn" data-model="2104">Office</button>
+            </div>
             <div class="pc-compare-layout-single">
                 <article class="pc-compare-panel">
-                    <h3>XYZI (Left) vs XYZRGB (Right)</h3>
-                    <div id="pc-compare-canvas" class="pc-compare-viewer"></div>
-                    <div class="pc-compare-status-row">
-                        <div id="pc-left-status" class="pc-status">Loading XYZI point cloud...</div>
-                        <div id="pc-right-status" class="pc-status">Loading XYZRGB point cloud...</div>
+                    <h3 id="pc-current-title">Learning Area</h3>
+                    <div class="pc-viewer-shell">
+                        <div id="pc-compare-canvas" class="pc-compare-viewer"></div>
+                        <div class="pc-control-stack">
+                            <button id="pc-zoom-in" class="pc-control-btn" type="button">+</button>
+                            <button id="pc-zoom-out" class="pc-control-btn" type="button">-</button>
+                            <button id="pc-reset" class="pc-control-btn" type="button">⟳</button>
+                        </div>
                     </div>
+                    <div id="pc-view-status" class="pc-status">Loading point cloud...</div>
                 </article>
             </div>
         </div>
