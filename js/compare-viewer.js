@@ -119,7 +119,6 @@
             halfX: Math.max(sx * 0.5, 1e-4),
             halfY: Math.max(sy * 0.5, 1e-4),
             halfZ: Math.max(sz * 0.5, 1e-4),
-            depthScale: Math.max(sx, sy, sz, 1e-4),
             boundingRadius: Math.max(radius, 1e-4)
         };
     }
@@ -158,11 +157,7 @@
             positions.push(x, y, z);
 
             var colorScale = (r > 1 || g > 1 || b > 1) ? 255 : 1;
-            colors.push(
-                clamp01(r / colorScale),
-                clamp01(g / colorScale),
-                clamp01(b / colorScale)
-            );
+            colors.push(clamp01(r / colorScale), clamp01(g / colorScale), clamp01(b / colorScale));
         }
 
         var positionsArray = new Float32Array(positions);
@@ -206,7 +201,6 @@
 
             positions.push(x, y, z);
             intensities.push(intensity);
-
             if (intensity < minI) { minI = intensity; }
             if (intensity > maxI) { maxI = intensity; }
         }
@@ -233,70 +227,32 @@
         };
     }
 
-    function ViewerManager() {
-        this.viewers = [];
-        this.syncing = false;
+    function makeEDLPack() {
+        return {
+            target: null,
+            scene: null,
+            camera: null,
+            material: null,
+            enabled: false
+        };
     }
 
-    ViewerManager.prototype.addViewer = function (viewer) {
-        this.viewers.push(viewer);
-    };
+    function CompareViewer() {
+        this.container = document.getElementById("pc-compare-canvas");
+        this.leftStatus = document.getElementById("pc-left-status");
+        this.rightStatus = document.getElementById("pc-right-status");
 
-    ViewerManager.prototype.synchronizeControls = function (activeViewer) {
-        if (this.syncing) {
-            return;
-        }
-        this.syncing = true;
+        this.sceneLeft = new THREE.Scene();
+        this.sceneRight = new THREE.Scene();
+        this.groupLeft = new THREE.Group();
+        this.groupRight = new THREE.Group();
+        this.sceneLeft.add(this.groupLeft);
+        this.sceneRight.add(this.groupRight);
+        this.sceneLeft.add(new THREE.AmbientLight(0xffffff, 1.0));
+        this.sceneRight.add(new THREE.AmbientLight(0xffffff, 1.0));
 
-        var camera = activeViewer.camera;
-        var controls = activeViewer.controls;
-
-        this.viewers.forEach(function (viewer) {
-            if (viewer !== activeViewer) {
-                viewer.camera.position.copy(camera.position);
-                viewer.camera.rotation.copy(camera.rotation);
-                viewer.controls.target.copy(controls.target);
-                viewer.controls.update();
-            }
-            viewer.render();
-        });
-
-        this.syncing = false;
-    };
-
-    function SceneViewer(containerId, statusId, filePath, mode, manager) {
-        this.container = document.getElementById(containerId);
-        this.statusEl = document.getElementById(statusId);
-        this.filePath = filePath;
-        this.mode = mode;
-        this.manager = manager;
-
-        this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(48, 1, 0.01, 100);
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-
-        this.group = new THREE.Group();
-        this.pointCloud = null;
-        this.fitMetrics = null;
-
-        this.useEDL = false;
-        this.edlTarget = null;
-        this.edlScene = null;
-        this.edlCamera = null;
-        this.edlMaterial = null;
-
-        this.init();
-    }
-
-    SceneViewer.prototype.setStatus = function (msg) {
-        this.statusEl.textContent = msg;
-    };
-
-    SceneViewer.prototype.init = function () {
-        if (this.container === null || this.statusEl === null) {
-            return;
-        }
-
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
         this.renderer.setClearColor(0x000000, 0);
         if ("outputColorSpace" in this.renderer && THREE.SRGBColorSpace) {
@@ -304,36 +260,45 @@
         } else if ("outputEncoding" in this.renderer && THREE.sRGBEncoding) {
             this.renderer.outputEncoding = THREE.sRGBEncoding;
         }
-        this.container.appendChild(this.renderer.domElement);
-
-        this.scene.add(this.group);
-        this.scene.add(new THREE.AmbientLight(0xffffff, 1.0));
 
         this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.addEventListener("change", this.onControlsChanged.bind(this));
+        this.controls.addEventListener("change", this.render.bind(this));
 
-        this.initEDL();
-        this.resize();
+        this.leftPoints = null;
+        this.rightPoints = null;
+        this.leftMetrics = null;
+        this.rightMetrics = null;
+
+        this.edlLeft = makeEDLPack();
+        this.edlRight = makeEDLPack();
+    }
+
+    CompareViewer.prototype.setStatus = function (side, text) {
+        if (side === "left") {
+            this.leftStatus.textContent = text;
+        } else {
+            this.rightStatus.textContent = text;
+        }
     };
 
-    SceneViewer.prototype.initEDL = function () {
+    CompareViewer.prototype.initEDLFor = function (pack) {
         if (!EDL_ENABLED || !THREE.DepthTexture) {
             return;
         }
 
         try {
-            this.edlTarget = new THREE.WebGLRenderTarget(1, 1, {
+            pack.target = new THREE.WebGLRenderTarget(1, 1, {
                 minFilter: THREE.LinearFilter,
                 magFilter: THREE.LinearFilter,
                 format: THREE.RGBAFormat,
                 depthBuffer: true,
                 stencilBuffer: false
             });
-            this.edlTarget.depthTexture = new THREE.DepthTexture(1, 1, THREE.UnsignedShortType);
+            pack.target.depthTexture = new THREE.DepthTexture(1, 1, THREE.UnsignedShortType);
 
-            this.edlScene = new THREE.Scene();
-            this.edlCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-            this.edlMaterial = new THREE.ShaderMaterial({
+            pack.scene = new THREE.Scene();
+            pack.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+            pack.material = new THREE.ShaderMaterial({
                 uniforms: {
                     tColor: { value: null },
                     tDepth: { value: null },
@@ -392,27 +357,38 @@
                 transparent: false
             });
 
-            var edlQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.edlMaterial);
-            this.edlScene.add(edlQuad);
-            this.useEDL = true;
-        } catch (error) {
-            this.useEDL = false;
-            console.warn("EDL init failed, fallback to standard rendering.", error);
+            pack.scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), pack.material));
+            pack.enabled = true;
+        } catch (err) {
+            pack.enabled = false;
         }
     };
 
-    SceneViewer.prototype.fitCameraToScene = function () {
-        if (this.fitMetrics === null) {
+    CompareViewer.prototype.init = function () {
+        if (!this.container || !this.leftStatus || !this.rightStatus) {
+            return false;
+        }
+
+        this.container.appendChild(this.renderer.domElement);
+        this.initEDLFor(this.edlLeft);
+        this.initEDLFor(this.edlRight);
+        this.resize();
+        return true;
+    };
+
+    CompareViewer.prototype.fitCamera = function () {
+        if (!this.leftMetrics || !this.rightMetrics) {
             return;
         }
 
-        var halfX = this.fitMetrics.halfX;
-        var halfY = this.fitMetrics.halfY;
-        var halfZ = this.fitMetrics.halfZ;
-        var radius = this.fitMetrics.boundingRadius;
+        var halfX = Math.max(this.leftMetrics.halfX, this.rightMetrics.halfX);
+        var halfY = Math.max(this.leftMetrics.halfY, this.rightMetrics.halfY);
+        var halfZ = Math.max(this.leftMetrics.halfZ, this.rightMetrics.halfZ);
+        var radius = Math.max(this.leftMetrics.boundingRadius, this.rightMetrics.boundingRadius);
 
         var fovV = this.camera.fov * Math.PI / 180;
-        var fovH = 2 * Math.atan(Math.tan(fovV * 0.5) * this.camera.aspect);
+        var halfAspect = this.camera.aspect * 0.5;
+        var fovH = 2 * Math.atan(Math.tan(fovV * 0.5) * Math.max(halfAspect, 1e-4));
 
         var distV = halfY / Math.tan(fovV * 0.5);
         var distH = halfX / Math.tan(fovH * 0.5);
@@ -424,53 +400,48 @@
         this.camera.lookAt(0, 0, 0);
         this.camera.updateProjectionMatrix();
 
-        if (this.useEDL && this.edlMaterial !== null) {
-            this.edlMaterial.uniforms.cameraNear.value = this.camera.near;
-            this.edlMaterial.uniforms.cameraFar.value = this.camera.far;
-        }
-
         this.controls.target.set(0, 0, 0);
         this.controls.update();
+
+        if (this.edlLeft.enabled) {
+            this.edlLeft.material.uniforms.cameraNear.value = this.camera.near;
+            this.edlLeft.material.uniforms.cameraFar.value = this.camera.far;
+        }
+        if (this.edlRight.enabled) {
+            this.edlRight.material.uniforms.cameraNear.value = this.camera.near;
+            this.edlRight.material.uniforms.cameraFar.value = this.camera.far;
+        }
     };
 
-    SceneViewer.prototype.resize = function () {
+    CompareViewer.prototype.resize = function () {
         var width = Math.max(this.container.clientWidth, 1);
         var height = Math.max(this.container.clientHeight, 1);
-
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(width, height, true);
 
-        if (this.useEDL && this.edlTarget !== null && this.edlMaterial !== null) {
-            var pr = this.renderer.getPixelRatio();
-            var rw = Math.max(1, Math.floor(width * pr));
-            var rh = Math.max(1, Math.floor(height * pr));
-            this.edlTarget.setSize(rw, rh);
-            this.edlTarget.depthTexture.image.width = rw;
-            this.edlTarget.depthTexture.image.height = rh;
-            this.edlMaterial.uniforms.resolution.value.set(rw, rh);
-        }
+        var pr = this.renderer.getPixelRatio();
+        var halfW = Math.max(1, Math.floor(width * pr * 0.5));
+        var fullH = Math.max(1, Math.floor(height * pr));
 
-        this.fitCameraToScene();
+        [this.edlLeft, this.edlRight].forEach(function (pack) {
+            if (!pack.enabled) {
+                return;
+            }
+            pack.target.setSize(halfW, fullH);
+            pack.target.depthTexture.image.width = halfW;
+            pack.target.depthTexture.image.height = fullH;
+            pack.material.uniforms.resolution.value.set(halfW, fullH);
+        });
+
+        this.fitCamera();
         this.render();
     };
 
-    SceneViewer.prototype.onControlsChanged = function () {
-        this.manager.synchronizeControls(this);
-        this.render();
-    };
-
-    SceneViewer.prototype.setPointCloud = function (pointData) {
-        if (this.pointCloud !== null) {
-            this.pointCloud.geometry.dispose();
-            this.pointCloud.material.dispose();
-            this.group.remove(this.pointCloud);
-        }
-
+    CompareViewer.prototype.createPoints = function (data) {
         var geometry = new THREE.BufferGeometry();
-        geometry.setAttribute("position", new THREE.BufferAttribute(pointData.positions, 3));
-        geometry.setAttribute("color", new THREE.BufferAttribute(pointData.colors, 3));
-
+        geometry.setAttribute("position", new THREE.BufferAttribute(data.positions, 3));
+        geometry.setAttribute("color", new THREE.BufferAttribute(data.colors, 3));
         var material = new THREE.PointsMaterial({
             size: FIXED_POINT_SIZE,
             sizeAttenuation: false,
@@ -480,52 +451,86 @@
             depthWrite: true,
             depthTest: true
         });
+        return new THREE.Points(geometry, material);
+    };
 
-        this.pointCloud = new THREE.Points(geometry, material);
-        this.group.add(this.pointCloud);
+    CompareViewer.prototype.load = async function () {
+        this.setStatus("left", "Loading merged_voxel0.05_xyzi.asc...");
+        this.setStatus("right", "Loading merged_voxel0.05_xyzrgb.asc...");
 
-        this.fitMetrics = pointData.metrics;
-        this.fitCameraToScene();
+        var leftResp = await fetch(LEFT_FILE, { cache: "no-store" });
+        var rightResp = await fetch(RIGHT_FILE, { cache: "no-store" });
+        if (!leftResp.ok || !rightResp.ok) {
+            throw new Error("Failed to fetch compare point clouds.");
+        }
+
+        var leftText = await leftResp.text();
+        var rightText = await rightResp.text();
+
+        var leftData = parseXYZI(leftText, MAX_POINTS);
+        var rightData = parseXYZRGB(rightText, MAX_POINTS);
+
+        if (this.leftPoints !== null) {
+            this.leftPoints.geometry.dispose();
+            this.leftPoints.material.dispose();
+            this.groupLeft.remove(this.leftPoints);
+        }
+        if (this.rightPoints !== null) {
+            this.rightPoints.geometry.dispose();
+            this.rightPoints.material.dispose();
+            this.groupRight.remove(this.rightPoints);
+        }
+
+        this.leftPoints = this.createPoints(leftData);
+        this.rightPoints = this.createPoints(rightData);
+        this.groupLeft.add(this.leftPoints);
+        this.groupRight.add(this.rightPoints);
+
+        this.leftMetrics = leftData.metrics;
+        this.rightMetrics = rightData.metrics;
+
+        this.fitCamera();
+        this.setStatus("left", leftData.count.toLocaleString() + " points");
+        this.setStatus("right", rightData.count.toLocaleString() + " points");
         this.render();
     };
 
-    SceneViewer.prototype.render = function () {
-        if (this.useEDL && this.edlTarget !== null && this.edlMaterial !== null) {
-            this.renderer.setRenderTarget(this.edlTarget);
-            this.renderer.clear();
-            this.renderer.render(this.scene, this.camera);
-            this.renderer.setRenderTarget(null);
-
-            this.edlMaterial.uniforms.tColor.value = this.edlTarget.texture;
-            this.edlMaterial.uniforms.tDepth.value = this.edlTarget.depthTexture;
-            this.renderer.render(this.edlScene, this.edlCamera);
-        } else {
-            this.renderer.render(this.scene, this.camera);
+    CompareViewer.prototype.renderPacked = function (scene, pack, x, y, w, h) {
+        if (!pack.enabled) {
+            this.renderer.setViewport(x, y, w, h);
+            this.renderer.setScissor(x, y, w, h);
+            this.renderer.setScissorTest(true);
+            this.renderer.render(scene, this.camera);
+            return;
         }
+
+        this.renderer.setRenderTarget(pack.target);
+        this.renderer.clear();
+        this.renderer.render(scene, this.camera);
+        this.renderer.setRenderTarget(null);
+
+        pack.material.uniforms.tColor.value = pack.target.texture;
+        pack.material.uniforms.tDepth.value = pack.target.depthTexture;
+
+        this.renderer.setViewport(x, y, w, h);
+        this.renderer.setScissor(x, y, w, h);
+        this.renderer.setScissorTest(true);
+        this.renderer.render(pack.scene, pack.camera);
     };
 
-    SceneViewer.prototype.loadPointCloud = async function () {
-        try {
-            var basename = this.filePath.split("/").pop() || this.filePath;
-            this.setStatus("Loading " + basename + "...");
+    CompareViewer.prototype.render = function () {
+        var size = this.renderer.getSize(new THREE.Vector2());
+        var w = size.x;
+        var h = size.y;
+        var halfW = Math.floor(w / 2);
 
-            var response = await fetch(this.filePath, { cache: "no-store" });
-            if (!response.ok) {
-                throw new Error("HTTP " + response.status);
-            }
+        this.renderer.setScissorTest(true);
+        this.renderer.setClearColor(0xffffff, 1.0);
 
-            var text = await response.text();
-            var parsed = this.mode === "xyzi" ? parseXYZI(text, MAX_POINTS) : parseXYZRGB(text, MAX_POINTS);
-            if (parsed.positions.length === 0) {
-                throw new Error("No valid points parsed from file.");
-            }
+        this.renderPacked(this.sceneLeft, this.edlLeft, 0, 0, halfW, h);
+        this.renderPacked(this.sceneRight, this.edlRight, halfW, 0, w - halfW, h);
 
-            this.setPointCloud(parsed);
-            this.setStatus(parsed.count.toLocaleString() + " points" + (this.useEDL ? " · EDL" : "") + " · point size 2");
-        } catch (error) {
-            this.setStatus("Failed to load " + this.filePath);
-            console.error(error);
-        }
+        this.renderer.setScissorTest(false);
     };
 
     function initCompare() {
@@ -533,25 +538,19 @@
             return;
         }
 
-        if (!document.getElementById("pc-left") || !document.getElementById("pc-right")) {
+        var viewer = new CompareViewer();
+        if (!viewer.init()) {
             return;
         }
 
-        var manager = new ViewerManager();
-
-        var leftViewer = new SceneViewer("pc-left", "pc-left-status", LEFT_FILE, "xyzi", manager);
-        var rightViewer = new SceneViewer("pc-right", "pc-right-status", RIGHT_FILE, "xyzrgb", manager);
-
-        manager.addViewer(leftViewer);
-        manager.addViewer(rightViewer);
-
         window.addEventListener("resize", function () {
-            leftViewer.resize();
-            rightViewer.resize();
+            viewer.resize();
         });
 
-        Promise.all([leftViewer.loadPointCloud(), rightViewer.loadPointCloud()]).then(function () {
-            manager.synchronizeControls(leftViewer);
+        viewer.load().catch(function (err) {
+            viewer.setStatus("left", "Failed to load XYZI point cloud");
+            viewer.setStatus("right", "Failed to load XYZRGB point cloud");
+            console.error(err);
         });
     }
 

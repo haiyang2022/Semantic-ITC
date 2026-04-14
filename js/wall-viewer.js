@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
     var CLASS_NAMES = [
         "beam", "board", "cabinetshelf", "ceiling", "chair",
         "column", "door", "floor", "light", "screen",
@@ -438,7 +438,7 @@
                 }
 
                 setPointCloud(parsed);
-                setStatus((parsed.positions.length / 3).toLocaleString() + " points" + (useEDL ? " · EDL" : ""));
+                setStatus((parsed.positions.length / 3).toLocaleString() + " points");
             } catch (error) {
                 setStatus("Failed to load " + filePath);
                 console.error(error);

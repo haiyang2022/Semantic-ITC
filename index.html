@@ -53,16 +53,14 @@
             <div id="pc-showcase" class="pc-showcase"></div>
             <h2 style="margin-top:3rem;">Point Cloud Compare</h2>
             <p class="pc-compare-desc">Left: XYZI (intensity colormap) | Right: XYZRGB (raw color). Orbit and zoom are synchronized.</p>
-            <div class="pc-compare-layout">
+            <div class="pc-compare-layout-single">
                 <article class="pc-compare-panel">
-                    <h3>XYZI (Intensity)</h3>
-                    <div id="pc-left" class="pc-compare-viewer"></div>
-                    <div id="pc-left-status" class="pc-status">Loading XYZI point cloud...</div>
-                </article>
-                <article class="pc-compare-panel">
-                    <h3>XYZRGB (RGB)</h3>
-                    <div id="pc-right" class="pc-compare-viewer"></div>
-                    <div id="pc-right-status" class="pc-status">Loading XYZRGB point cloud...</div>
+                    <h3>XYZI (Left) vs XYZRGB (Right)</h3>
+                    <div id="pc-compare-canvas" class="pc-compare-viewer"></div>
+                    <div class="pc-compare-status-row">
+                        <div id="pc-left-status" class="pc-status">Loading XYZI point cloud...</div>
+                        <div id="pc-right-status" class="pc-status">Loading XYZRGB point cloud...</div>
+                    </div>
                 </article>
             </div>
         </div>
