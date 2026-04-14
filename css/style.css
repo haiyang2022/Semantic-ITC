@@ -1427,3 +1427,65 @@ body {
         height: 240px;
     }
 }
+
+.pc-compare-desc {
+    margin: 0 auto 1.25rem;
+    text-align: center;
+    color: #334155;
+    font-size: 1rem;
+    max-width: 980px;
+}
+
+.pc-compare-layout {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.pc-compare-panel {
+    border-radius: 16px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    box-shadow: 0 10px 26px -18px rgba(15, 23, 42, 0.45);
+    padding: 0.8rem;
+}
+
+.pc-compare-panel h3 {
+    margin: 0 0 0.6rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.pc-compare-viewer {
+    width: 100%;
+    height: 540px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fafafa;
+    border: 1px solid #e2e8f0;
+    cursor: grab;
+}
+
+.pc-compare-viewer:active {
+    cursor: grabbing;
+}
+
+.pc-status {
+    margin-top: 0.5rem;
+    min-height: 1.4rem;
+    font-size: 0.82rem;
+    color: #334155;
+}
+
+@media (max-width: 980px) {
+    .pc-compare-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .pc-compare-viewer {
+        height: 430px;
+    }
+}

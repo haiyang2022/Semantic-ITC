@@ -51,6 +51,20 @@
         <div class="container">
             <h2>Semantic Classes</h2>
             <div id="pc-showcase" class="pc-showcase"></div>
+            <h2 style="margin-top:3rem;">Point Cloud Compare</h2>
+            <p class="pc-compare-desc">Left: XYZI (intensity colormap) | Right: XYZRGB (raw color). Orbit and zoom are synchronized.</p>
+            <div class="pc-compare-layout">
+                <article class="pc-compare-panel">
+                    <h3>XYZI (Intensity)</h3>
+                    <div id="pc-left" class="pc-compare-viewer"></div>
+                    <div id="pc-left-status" class="pc-status">Loading XYZI point cloud...</div>
+                </article>
+                <article class="pc-compare-panel">
+                    <h3>XYZRGB (RGB)</h3>
+                    <div id="pc-right" class="pc-compare-viewer"></div>
+                    <div id="pc-right-status" class="pc-status">Loading XYZRGB point cloud...</div>
+                </article>
+            </div>
         </div>
     </section>
 
@@ -63,7 +77,10 @@
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/three.min.js"></script>
+    <script src="js/OrbitControls.js"></script>
     <script src="js/script.js"></script>
     <script src="js/wall-viewer.js"></script>
+    <script src="js/compare-viewer.js"></script>
 </body>
 </html>
+
