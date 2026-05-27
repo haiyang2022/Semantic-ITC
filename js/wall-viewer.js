@@ -4,6 +4,23 @@
         "column", "door", "floor", "light", "screen",
         "sofa", "stair", "table", "vegetation", "wall"
     ];
+    var CLASS_COLORS_RGB = {
+        wall: [74, 98, 122],
+        floor: [196, 168, 116],
+        ceiling: [197, 213, 226],
+        column: [58, 79, 122],
+        beam: [122, 98, 154],
+        door: [196, 88, 80],
+        stair: [212, 146, 72],
+        table: [90, 154, 174],
+        chair: [77, 139, 122],
+        sofa: [176, 121, 144],
+        cabinetshelf: [149, 114, 84],
+        screen: [72, 116, 178],
+        light: [230, 196, 104],
+        vegetation: [104, 150, 110],
+        board: [63, 122, 92]
+    };
 
     var EDL_ENABLED = true;
     var EDL_STRENGTH = 1.35;
@@ -301,7 +318,7 @@
             };
         }
 
-        function parseXYZRGB(rawText, maxPoints) {
+        function parseXYZRGB(rawText, maxPoints, overrideColor) {
             var lines = rawText.split(/\r?\n/);
             var step = Math.max(1, Math.floor(lines.length / maxPoints));
             var positions = [];
@@ -334,12 +351,16 @@
 
                 positions.push(x, y, z);
 
-                var colorScale = (r > 1 || g > 1 || b > 1) ? 255 : 1;
-                colors.push(
-                    Math.min(Math.max(r / colorScale, 0), 1),
-                    Math.min(Math.max(g / colorScale, 0), 1),
-                    Math.min(Math.max(b / colorScale, 0), 1)
-                );
+                if (overrideColor !== null) {
+                    colors.push(overrideColor[0], overrideColor[1], overrideColor[2]);
+                } else {
+                    var colorScale = (r > 1 || g > 1 || b > 1) ? 255 : 1;
+                    colors.push(
+                        Math.min(Math.max(r / colorScale, 0), 1),
+                        Math.min(Math.max(g / colorScale, 0), 1),
+                        Math.min(Math.max(b / colorScale, 0), 1)
+                    );
+                }
             }
 
             var positionsArray = new Float32Array(positions);
@@ -364,8 +385,8 @@
             geometry.setAttribute("color", new THREE.BufferAttribute(pointData.colors, 3));
 
             var material = new THREE.PointsMaterial({
-                size: Math.max(0.0035, pointData.metrics.depthScale * 0.0018),
-                sizeAttenuation: true,
+                size: 2,
+                sizeAttenuation: false,
                 vertexColors: true,
                 opacity: 1,
                 transparent: false,
@@ -432,7 +453,13 @@
 
                 var text = await response.text();
                 var maxPoints = (classKey === "ceiling" || classKey === "floor") ? 200000 : 100000;
-                var parsed = parseXYZRGB(text, maxPoints);
+                var classColor = CLASS_COLORS_RGB[classKey] || null;
+                var normalizedColor = classColor ? [
+                    classColor[0] / 255,
+                    classColor[1] / 255,
+                    classColor[2] / 255
+                ] : null;
+                var parsed = parseXYZRGB(text, maxPoints, normalizedColor);
                 if (parsed.positions.length === 0) {
                     throw new Error("No valid points parsed from file.");
                 }

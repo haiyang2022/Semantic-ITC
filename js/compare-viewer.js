@@ -6,7 +6,7 @@
     var POINT_SIZE = 2.0;
 
     var MODELS = [
-        { key: "region2-1", label: "Learning Area", path: "./data/learning_area.asc" },
+        { key: "region2-1", label: "Study Area", path: "./data/learning_area.asc" },
         { key: "region1-1", label: "Corridor Area", path: "./data/corridor_area.asc" },
         { key: "baseline", label: "Classroom", path: "./data/classroom.asc" },
         { key: "1310", label: "Meeting Room", path: "./data/meeting_room.asc" },
