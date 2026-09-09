@@ -101,11 +101,18 @@
 .download-row,
 .repo-row {
     display: grid;
-    grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.4fr) auto;
     gap: 20px;
     align-items: center;
     padding: 15px 0;
     border-bottom: 1px solid #cbd5e1;
+}
+
+.download-row {
+    grid-template-columns: minmax(220px, 1fr) auto;
+}
+
+.repo-row {
+    grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.4fr) auto;
 }
 
 .download-row code,
