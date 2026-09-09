@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Semantic-ITC</title>
-    <meta name="description" content="Semantic-ITC dataset demo page.">
-    <meta property="og:title" content="Semantic-ITC">
-    <meta property="og:description" content="Semantic-ITC dataset demo page.">
+    <title>Semantic-ITC: A Frame-wise Indoor Mobile Laser Scanning Dataset and Benchmark for Semantic Segmentation</title>
+    <meta name="description" content="Semantic-ITC: A Frame-wise Indoor Mobile Laser Scanning Dataset and Benchmark for Semantic Segmentation.">
+    <meta property="og:title" content="Semantic-ITC: A Frame-wise Indoor Mobile Laser Scanning Dataset and Benchmark for Semantic Segmentation">
+    <meta property="og:description" content="Semantic-ITC: A Frame-wise Indoor Mobile Laser Scanning Dataset and Benchmark for Semantic Segmentation.">
     <meta property="og:type" content="website">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/template.css">
     <link rel="stylesheet" href="css/page.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=2">
 </head>
 <body>
     <nav class="navbar">
@@ -23,7 +21,10 @@
             </div>
             <ul class="nav-menu">
                 <li><a href="#home">Home</a></li>
+                <li><a href="getting-started.html#dataset">Dataset</a></li>
+                <li><a href="#benchmark">Benchmark</a></li>
                 <li><a href="#demo">Demo</a></li>
+                <li><a href="getting-started.html">Get Started</a></li>
             </ul>
         </div>
     </nav>
@@ -32,22 +33,60 @@
         <div class="container">
             <div class="hero-content">
                 <div class="hero-title-row">
-                    <span class="hero-title-main">Semantic-ITC: A Frame-wise Indoor Mobile LiDAR Dataset for Semantic Scene Understanding</span>
+                    <span class="hero-title-main">Semantic-ITC: A Frame-wise Indoor Mobile Laser Scanning Dataset and Benchmark for Semantic Segmentation</span>
                 </div>
                 <div class="hero-links">
-                    <a href="https://github.com/haiyang2022/Semantic-ITC" class="btn btn-secondary" target="_blank" rel="noreferrer">
-                        <i class="fa-brands fa-github"></i> GitHub
+                    <a href="getting-started.html" class="btn btn-primary">
+                        Get Started
                     </a>
+                    <span class="btn btn-secondary btn-disabled" aria-disabled="true">
+                        Dataset Coming Soon
+                    </span>
                     <a href="https://www.youtube.com/watch?v=3aNE9g7zNqk&t=206s" class="btn btn-secondary" target="_blank" rel="noreferrer">
-                        <i class="fa-brands fa-youtube"></i> Video
+                        YouTube
                     </a>
                 </div>
                 <div class="template-teaser">
                     <div class="template-teaser-card system-overall-card">
-                        <img src="data/System_Overall.png" alt="Semantic-ITC system overview" class="system-overall-img">
+                        <img src="data/System_Overall.png?v=2" alt="Semantic-ITC system overview" class="system-overall-img">
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <section id="benchmark" class="benchmark-section content-band content-band-muted">
+        <div class="content-container">
+            <div class="section-heading section-heading-row">
+                <div>
+                    <span class="section-kicker">Benchmark</span>
+                    <h2>Semantic segmentation results</h2>
+                </div>
+                <a class="text-link" href="getting-started.html#methods">Training and evaluation commands &rarr;</a>
+            </div>
+            <div class="benchmark-table-wrap">
+                <table class="benchmark-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">Method</th>
+                            <th colspan="3">Raw-local</th>
+                            <th colspan="3">Gravity-aligned</th>
+                        </tr>
+                        <tr>
+                            <th>mIoU</th><th>mAcc</th><th>OA</th>
+                            <th>mIoU</th><th>mAcc</th><th>OA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><a href="https://github.com/haiyang2022/WaffleIron" target="_blank" rel="noreferrer">WaffleIron</a></td><td><strong>79.27</strong></td><td>87.38</td><td>92.99</td><td><strong>78.44</strong></td><td>88.88</td><td>93.18</td></tr>
+                        <tr><td><a href="https://github.com/haiyang2022/Pointcept" target="_blank" rel="noreferrer">PTv3</a></td><td><strong>78.19</strong></td><td>88.10</td><td>93.26</td><td><strong>76.66</strong></td><td>87.01</td><td>92.94</td></tr>
+                        <tr><td><a href="https://github.com/haiyang2022/HARPNeXt" target="_blank" rel="noreferrer">HARP-NeXt</a></td><td><strong>75.20</strong></td><td>84.71</td><td>92.65</td><td><strong>64.95</strong></td><td>79.55</td><td>90.59</td></tr>
+                        <tr><td><a href="https://github.com/haiyang2022/SalsaNext" target="_blank" rel="noreferrer">SalsaNext</a></td><td><strong>69.80</strong></td><td>86.88</td><td>89.64</td><td><strong>56.48</strong></td><td>78.93</td><td>83.86</td></tr>
+                        <tr><td><a href="https://github.com/haiyang2022/Cylinder3D" target="_blank" rel="noreferrer">Cylinder3D</a></td><td><strong>69.29</strong></td><td>77.81</td><td>91.97</td><td><strong>76.31</strong></td><td>86.14</td><td>93.01</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="table-note">Test-set results in percent.</p>
         </div>
     </section>
 
@@ -105,4 +144,3 @@
     <script src="js/compare-viewer.js"></script>
 </body>
 </html>
-

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started | Semantic-ITC</title>
+    <meta name="description" content="Semantic-ITC dataset structure, benchmark repositories, checkpoints, training, and evaluation commands.">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/template.css">
+    <link rel="stylesheet" href="css/page.css">
+    <link rel="stylesheet" href="css/style.css?v=2">
+    <link rel="stylesheet" href="css/getting-started.css?v=3">
+</head>
+<body class="docs-body">
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand"><a href="index.html">Semantic-ITC</a></div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="#dataset">Dataset</a></li>
+                <li><a href="#checkpoints">Checkpoints</a></li>
+                <li><a href="#methods">Methods</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="docs-main">
+        <header class="docs-header">
+            <span class="section-kicker">Documentation</span>
+            <h1>Getting Started</h1>
+            <p>Dataset installation, benchmark repositories, released checkpoints, and commands for training and test-set evaluation.</p>
+        </header>
+
+        <nav class="docs-toc" aria-label="Page contents">
+            <a href="#download">Download</a>
+            <a href="#dataset">Dataset structure</a>
+            <a href="#format">Point format</a>
+            <a href="#benchmark">Results</a>
+            <a href="#checkpoints">Checkpoints</a>
+            <a href="#methods">Training and evaluation</a>
+        </nav>
+
+        <section id="download" class="docs-section">
+            <h2>Download and extract</h2>
+            <div class="download-list">
+                <div class="download-row">
+                    <strong>Raw-local point clouds</strong>
+                    <code>Semantic-ITC_raw-local.tar</code>
+                    <span class="status-pending">Coming soon</span>
+                </div>
+                <div class="download-row">
+                    <strong>Gravity-aligned point clouds</strong>
+                    <code>Semantic-ITC_gravity-aligned.tar</code>
+                    <span class="status-pending">Coming soon</span>
+                </div>
+            </div>
+            <h3>Verify archives</h3>
+            <div class="code-block"><pre><code>sha256sum -c SHA256SUMS.txt</code></pre></div>
+            <h3>Extract archives</h3>
+            <div class="code-block"><pre><code>mkdir -p Semantic-ITC
+tar -xf Semantic-ITC_raw-local.tar -C Semantic-ITC
+tar -xf Semantic-ITC_gravity-aligned.tar -C Semantic-ITC</code></pre></div>
+        </section>
+
+        <section id="dataset" class="docs-section">
+            <h2>Dataset structure</h2>
+            <p>Both coordinate versions contain the same 52 public sequence IDs, frame timestamps, semantic labels, and sequence-level split. The split contains 37 training, 5 validation, and 10 test sequences.</p>
+            <div class="code-block"><pre><code>Semantic-ITC/
+├── point_clouds_local_bin/
+│   ├── train/&lt;sequence_id&gt;/&lt;timestamp&gt;.bin
+│   ├── val/&lt;sequence_id&gt;/&lt;timestamp&gt;.bin
+│   ├── test/&lt;sequence_id&gt;/&lt;timestamp&gt;.bin
+│   └── splits/{train,val,test}.txt
+└── point_clouds_gravity_aligned_bin/
+    ├── train/&lt;sequence_id&gt;/&lt;timestamp&gt;.bin
+    ├── val/&lt;sequence_id&gt;/&lt;timestamp&gt;.bin
+    ├── test/&lt;sequence_id&gt;/&lt;timestamp&gt;.bin
+    └── splits/{train,val,test}.txt</code></pre></div>
+            <div class="coordinate-list">
+                <div class="coordinate-row">
+                    <strong>Raw-local</strong>
+                    <span>Original per-frame LiDAR sensor coordinates. This is the main benchmark coordinate version.</span>
+                </div>
+                <div class="coordinate-row">
+                    <strong>Gravity-aligned</strong>
+                    <span>Per-frame LiDAR-origin coordinates with roll and pitch leveled. Heading and yaw are preserved; translation is not applied.</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="format" class="docs-section">
+            <h2>Point format</h2>
+            <p>Each little-endian binary point record occupies 14 bytes without padding.</p>
+            <table class="format-table">
+                <thead><tr><th>Field</th><th>Type</th><th>Bytes</th><th>Range</th></tr></thead>
+                <tbody>
+                    <tr><td>x</td><td><code>float32</code></td><td>4</td><td>LiDAR coordinate</td></tr>
+                    <tr><td>y</td><td><code>float32</code></td><td>4</td><td>LiDAR coordinate</td></tr>
+                    <tr><td>z</td><td><code>float32</code></td><td>4</td><td>LiDAR coordinate</td></tr>
+                    <tr><td>intensity</td><td><code>uint8</code></td><td>1</td><td>0–255</td></tr>
+                    <tr><td>label</td><td><code>uint8</code></td><td>1</td><td>0–15</td></tr>
+                </tbody>
+            </table>
+            <h3>Python reader</h3>
+            <div class="code-block"><pre><code>import numpy as np
+
+dtype = np.dtype([
+    ("x", "&lt;f4"), ("y", "&lt;f4"), ("z", "&lt;f4"),
+    ("intensity", "u1"), ("label", "u1"),
+], align=False)
+
+points = np.fromfile("frame.bin", dtype=dtype)
+xyz = np.stack([points["x"], points["y"], points["z"]], axis=1)
+intensity = points["intensity"]
+labels = points["label"]</code></pre></div>
+            <h3>Semantic labels</h3>
+            <p><code>0</code> wall, <code>1</code> floor, <code>2</code> ceiling, <code>3</code> column, <code>4</code> beam, <code>5</code> door, <code>6</code> stair, <code>7</code> table, <code>8</code> chair, <code>9</code> sofa, <code>10</code> cabinetshelf, <code>11</code> screen, <code>12</code> light, <code>13</code> vegetation, <code>14</code> board, <code>15</code> Others.</p>
+        </section>
+
+        <section id="benchmark" class="docs-section">
+            <h2>Benchmark results</h2>
+            <div class="docs-table-wrap">
+                <table class="docs-table">
+                    <thead>
+                        <tr><th>Method</th><th>Raw mIoU</th><th>Raw mAcc</th><th>Raw OA</th><th>Gravity mIoU</th><th>Gravity mAcc</th><th>Gravity OA</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><a href="https://github.com/haiyang2022/WaffleIron" target="_blank" rel="noreferrer">WaffleIron</a></td><td>79.27</td><td>87.38</td><td>92.99</td><td>78.44</td><td>88.88</td><td>93.18</td></tr>
+                        <tr><td><a href="https://github.com/haiyang2022/Pointcept" target="_blank" rel="noreferrer">PTv3</a></td><td>78.19</td><td>88.10</td><td>93.26</td><td>76.66</td><td>87.01</td><td>92.94</td></tr>
+                        <tr><td><a href="https://github.com/haiyang2022/HARPNeXt" target="_blank" rel="noreferrer">HARP-NeXt</a></td><td>75.20</td><td>84.71</td><td>92.65</td><td>64.95</td><td>79.55</td><td>90.59</td></tr>
+                        <tr><td><a href="https://github.com/haiyang2022/SalsaNext" target="_blank" rel="noreferrer">SalsaNext</a></td><td>69.80</td><td>86.88</td><td>89.64</td><td>56.48</td><td>78.93</td><td>83.86</td></tr>
+                        <tr><td><a href="https://github.com/haiyang2022/Cylinder3D" target="_blank" rel="noreferrer">Cylinder3D</a></td><td>69.29</td><td>77.81</td><td>91.97</td><td>76.31</td><td>86.14</td><td>93.01</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="table-note">Test-set results in percent.</p>
+        </section>
+
+        <section id="checkpoints" class="docs-section">
+            <h2>Benchmark checkpoints</h2>
+            <div class="docs-table-wrap">
+                <table class="docs-table">
+                    <thead><tr><th>Method</th><th>Coordinates</th><th>Filename</th><th>Download</th></tr></thead>
+                    <tbody>
+                        <tr><td>WaffleIron</td><td>Raw-local</td><td><code>waffleiron_raw_local_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
+                        <tr><td>WaffleIron</td><td>Gravity-aligned</td><td><code>waffleiron_gravity_aligned_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
+                        <tr><td>PTv3</td><td>Raw-local</td><td><code>ptv3_raw_local_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
+                        <tr><td>PTv3</td><td>Gravity-aligned</td><td><code>ptv3_gravity_aligned_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
+                        <tr><td>HARP-NeXt</td><td>Raw-local</td><td><code>harpnext_raw_local_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
+                        <tr><td>HARP-NeXt</td><td>Gravity-aligned</td><td><code>harpnext_gravity_aligned_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
+                        <tr><td>SalsaNext</td><td>Raw-local</td><td><code>salsanext_raw_local_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
+                        <tr><td>SalsaNext</td><td>Gravity-aligned</td><td><code>salsanext_gravity_aligned_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
+                        <tr><td>Cylinder3D</td><td>Raw-local</td><td><code>cylinder3d_raw_local_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
+                        <tr><td>Cylinder3D</td><td>Gravity-aligned</td><td><code>cylinder3d_gravity_aligned_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="methods" class="docs-section">
+            <h2>Training and evaluation</h2>
+            <p>Install each method according to its repository README. Semantic-ITC requires no additional dataset-specific package. SalsaNext, WaffleIron, and HARP-NeXt require TensorBoard. Cylinder3D requires a CUDA-compatible spconv installation. Pointcept requires pointops, spconv, and PyTorch Geometric as documented by Pointcept; the provided PTv3 configuration does not require FlashAttention.</p>
+
+            <h3>Paths and coordinate version</h3>
+            <div class="code-block"><pre><code>export ITC_CODE_ROOT=/path/to/directory/containing/the/five/repositories
+export ITC_RUN_ROOT=/path/to/output/directory
+export ITC_CHECKPOINT_ROOT=/path/to/downloaded/checkpoints
+export GPU_ID=0
+
+# Main benchmark
+export ITC_COORDINATES=raw_local
+export ITC_DATASET=/path/to/point_clouds_local_bin
+
+# For gravity-aligned experiments, use instead:
+# export ITC_COORDINATES=gravity_aligned
+# export ITC_DATASET=/path/to/point_clouds_gravity_aligned_bin</code></pre></div>
+
+            <article class="method-section">
+                <div class="method-title-row"><h3>WaffleIron</h3><a href="https://github.com/haiyang2022/WaffleIron" target="_blank" rel="noreferrer">Repository &nearr;</a></div>
+                <h3>Train</h3>
+                <div class="code-block"><pre><code>conda activate waffleiron
+PROJECT="$ITC_CODE_ROOT/WaffleIron"
+RUN_DIR="$ITC_RUN_ROOT/$ITC_COORDINATES/WaffleIron"
+cd "$PROJECT"
+PYTHONPATH="$PROJECT:${PYTHONPATH:-}" python -u launch_train.py \
+  --dataset itc --path_dataset "$ITC_DATASET" --log_path "$RUN_DIR" \
+  --config configs/WaffleIron-48-256__itc.yaml \
+  --gpu "$GPU_ID" --seed 0 --fp16</code></pre></div>
+                <h3>Evaluate released checkpoint</h3>
+                <div class="code-block"><pre><code>CKPT="$ITC_CHECKPOINT_ROOT/waffleiron_${ITC_COORDINATES}_best_val_miou.pt"
+TEST_DIR="$ITC_RUN_ROOT/$ITC_COORDINATES/WaffleIron_test_best"
+cd "$ITC_CODE_ROOT/WaffleIron"
+PYTHONPATH="$PWD:${PYTHONPATH:-}" python -u eval_itc.py \
+  --config configs/WaffleIron-48-256__itc.yaml \
+  --path_dataset "$ITC_DATASET" --ckpt "$CKPT" --phase test \
+  --run_dir "$TEST_DIR" --batch_size 1 --num_workers 8 --fp16</code></pre></div>
+            </article>
+
+            <article class="method-section">
+                <div class="method-title-row"><h3>Point Transformer V3</h3><a href="https://github.com/haiyang2022/Pointcept" target="_blank" rel="noreferrer">Repository &nearr;</a></div>
+                <h3>Train</h3>
+                <div class="code-block"><pre><code>conda activate pointcept
+PROJECT="$ITC_CODE_ROOT/Pointcept"
+RUN_DIR="$ITC_RUN_ROOT/$ITC_COORDINATES/PointTransformerV3"
+cd "$PROJECT"
+PYTHONPATH="$PROJECT:${PYTHONPATH:-}" python -u tools/train.py \
+  --num-gpus 1 --config-file configs/itc/semseg-pt-v3m1-0-itc.py \
+  --options save_path="$RUN_DIR" data.train.data_root="$ITC_DATASET" \
+    data.val.data_root="$ITC_DATASET" data.test.data_root="$ITC_DATASET"</code></pre></div>
+                <h3>Evaluate released checkpoint</h3>
+                <div class="code-block"><pre><code>CKPT="$ITC_CHECKPOINT_ROOT/ptv3_${ITC_COORDINATES}_best_val_miou.pt"
+TEST_DIR="$ITC_RUN_ROOT/$ITC_COORDINATES/PointTransformerV3_test_best"
+cd "$ITC_CODE_ROOT/Pointcept"
+PYTHONPATH="$PWD:${PYTHONPATH:-}" python -u tools/test.py \
+  --num-gpus 1 --config-file configs/itc/semseg-pt-v3m1-0-itc.py \
+  --options save_path="$TEST_DIR" weight="$CKPT" \
+    data.test.data_root="$ITC_DATASET" data.test.split=test</code></pre></div>
+            </article>
+
+            <article class="method-section">
+                <div class="method-title-row"><h3>HARP-NeXt</h3><a href="https://github.com/haiyang2022/HARPNeXt" target="_blank" rel="noreferrer">Repository &nearr;</a></div>
+                <h3>Train</h3>
+                <div class="code-block"><pre><code>conda activate harpnext
+PROJECT="$ITC_CODE_ROOT/HARPNeXt"
+RUN_DIR="$ITC_RUN_ROOT/$ITC_COORDINATES/HARPNeXt"
+cd "$PROJECT"
+PYTHONPATH="$PROJECT:${PYTHONPATH:-}" python -u main.py \
+  --net harpnext --dataset itc --path_dataset "$ITC_DATASET" \
+  --mainconfig configs/main/main-config-itc.yaml \
+  --netconfig configs/net/harpnext-itc.yaml --log_path "$RUN_DIR" \
+  --gpu "$GPU_ID" --seed 0 --fp16</code></pre></div>
+                <h3>Evaluate released checkpoint</h3>
+                <div class="code-block"><pre><code>CKPT="$ITC_CHECKPOINT_ROOT/harpnext_${ITC_COORDINATES}_best_val_miou.pt"
+TEST_DIR="$ITC_RUN_ROOT/$ITC_COORDINATES/HARPNeXt_test_best"
+cd "$ITC_CODE_ROOT/HARPNeXt"
+PYTHONPATH="$PWD:${PYTHONPATH:-}" python -u main.py \
+  --net harpnext --dataset itc --path_dataset "$ITC_DATASET" \
+  --mainconfig configs/main/main-config-itc.yaml \
+  --netconfig configs/net/harpnext-itc.yaml --log_path "$TEST_DIR" \
+  --checkpoint "$CKPT" --gpu "$GPU_ID" --seed 0 --fp16 \
+  --eval --eval-phase test --restart</code></pre></div>
+            </article>
+
+            <article class="method-section">
+                <div class="method-title-row"><h3>SalsaNext</h3><a href="https://github.com/haiyang2022/SalsaNext" target="_blank" rel="noreferrer">Repository &nearr;</a></div>
+                <h3>Train</h3>
+                <div class="code-block"><pre><code>conda activate salsanext
+PROJECT="$ITC_CODE_ROOT/SalsaNext"
+RUN_DIR="$ITC_RUN_ROOT/$ITC_COORDINATES/SalsaNext"
+cd "$PROJECT/train/tasks/semantic"
+python -u train.py --dataset "$ITC_DATASET" \
+  --arch_cfg "$PROJECT/salsanext_itc.yaml" \
+  --data_cfg "$PROJECT/train/tasks/semantic/config/labels/itc.yaml" \
+  --log "$RUN_DIR" --name "salsanext_itc_${ITC_COORDINATES}" \
+  --run-dir-exact</code></pre></div>
+                <h3>Evaluate released checkpoint</h3>
+                <div class="code-block"><pre><code>CKPT="$ITC_CHECKPOINT_ROOT/salsanext_${ITC_COORDINATES}_best_val_miou.pt"
+TEST_DIR="$ITC_RUN_ROOT/$ITC_COORDINATES/SalsaNext_test_best"
+PROJECT="$ITC_CODE_ROOT/SalsaNext"
+cd "$PROJECT"
+python -u eval_itc.py --dataset "$ITC_DATASET" \
+  --arch-cfg "$PROJECT/salsanext_itc.yaml" \
+  --data-cfg "$PROJECT/train/tasks/semantic/config/labels/itc.yaml" \
+  --checkpoint "$CKPT" --run-dir "$TEST_DIR" --split test --workers 8</code></pre></div>
+            </article>
+
+            <article class="method-section">
+                <div class="method-title-row"><h3>Cylinder3D</h3><a href="https://github.com/haiyang2022/Cylinder3D" target="_blank" rel="noreferrer">Repository &nearr;</a></div>
+                <h3>Train</h3>
+                <div class="code-block"><pre><code>conda activate cylinder3d
+PROJECT="$ITC_CODE_ROOT/Cylinder3D"
+RUN_DIR="$ITC_RUN_ROOT/$ITC_COORDINATES/Cylinder3D"
+cd "$PROJECT"
+python -u train_cylinder_asym.py -y config/itc.yaml \
+  --dataset-root "$ITC_DATASET" --run-dir "$RUN_DIR" --seed 0</code></pre></div>
+                <h3>Evaluate released checkpoint</h3>
+                <div class="code-block"><pre><code>CKPT="$ITC_CHECKPOINT_ROOT/cylinder3d_${ITC_COORDINATES}_best_val_miou.pt"
+TEST_DIR="$ITC_RUN_ROOT/$ITC_COORDINATES/Cylinder3D_test_best"
+cd "$ITC_CODE_ROOT/Cylinder3D"
+python -u eval_itc.py -y config/itc.yaml \
+  --dataset-root "$ITC_DATASET" --checkpoint "$CKPT" \
+  --run-dir "$TEST_DIR" --split test --batch-size 1 --num-workers 8</code></pre></div>
+            </article>
+        </section>
+    </main>
+
+    <footer class="footer"><div class="container"><p>&copy; 2026 Semantic-ITC</p></div></footer>
+</body>
+</html>
