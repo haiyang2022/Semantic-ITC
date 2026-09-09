@@ -69,6 +69,7 @@
         var group = new THREE.Group();
         var pointCloud = null;
         var isVisible = true;
+        var loadStarted = false;
         var fitMetrics = null;
         var classKey = (className || "").toLowerCase();
         var fixedTiltX = 0;
@@ -430,23 +431,35 @@
 
         function createVisibilityObserver() {
             if (!("IntersectionObserver" in window)) {
+                startLoading();
                 return;
             }
 
             var observer = new IntersectionObserver(function (entries) {
                 entries.forEach(function (entry) {
                     isVisible = entry.isIntersecting;
+                    if (entry.isIntersecting) {
+                        startLoading();
+                    }
                 });
-            }, { threshold: 0.1 });
+            }, { threshold: 0.01, rootMargin: "300px 0px" });
 
             observer.observe(container);
+        }
+
+        function startLoading() {
+            if (loadStarted) {
+                return;
+            }
+            loadStarted = true;
+            loadPointCloud();
         }
 
         async function loadPointCloud() {
             try {
                 var basename = filePath.split("/").pop() || filePath;
                 setStatus("Loading " + basename + "...");
-                var response = await fetch(filePath, { cache: "no-store" });
+                var response = await fetch(filePath);
                 if (!response.ok) {
                     throw new Error("HTTP " + response.status);
                 }
@@ -477,7 +490,6 @@
         window.addEventListener("resize", resize);
         createVisibilityObserver();
         animate();
-        loadPointCloud();
     }
 
     function initGallery() {

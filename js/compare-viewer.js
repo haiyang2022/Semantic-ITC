@@ -357,7 +357,7 @@
         this.title.textContent = model.label;
         this.status.textContent = "Loading " + model.label + "...";
 
-        var response = await fetch(model.path, { cache: "no-store" });
+        var response = await fetch(model.path);
         if (!response.ok) {
             throw new Error("HTTP " + response.status + " loading " + model.path);
         }
@@ -473,10 +473,24 @@
             viewer.resize();
         });
 
-        viewer.loadModel(MODELS[0]).catch(function (err) {
-            viewer.status.textContent = "Failed to load " + MODELS[0].label;
-            console.error(err);
-        });
+        function loadInitialModel() {
+            viewer.loadModel(MODELS[0]).catch(function (err) {
+                viewer.status.textContent = "Failed to load " + MODELS[0].label;
+                console.error(err);
+            });
+        }
+
+        if ("IntersectionObserver" in window) {
+            var initialObserver = new IntersectionObserver(function (entries, observer) {
+                if (entries.some(function (entry) { return entry.isIntersecting; })) {
+                    observer.disconnect();
+                    loadInitialModel();
+                }
+            }, { threshold: 0.01, rootMargin: "300px 0px" });
+            initialObserver.observe(viewer.container);
+        } else {
+            loadInitialModel();
+        }
     }
 
     if (document.readyState === "loading") {
