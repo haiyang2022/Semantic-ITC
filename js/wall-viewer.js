@@ -4,6 +4,10 @@
         "column", "door", "floor", "light", "screen",
         "sofa", "stair", "table", "vegetation", "wall"
     ];
+    var CLASS_DISPLAY_NAMES = {
+        cabinetshelf: "cabinet/shelf",
+        screen: "display"
+    };
     var CLASS_COLORS_RGB = {
         wall: [74, 98, 122],
         floor: [196, 168, 116],
@@ -28,6 +32,10 @@
 
     function slugify(name) {
         return name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    }
+
+    function getDisplayName(name) {
+        return CLASS_DISPLAY_NAMES[name] || name;
     }
 
     function createCard(name) {
@@ -457,8 +465,7 @@
 
         async function loadPointCloud() {
             try {
-                var basename = filePath.split("/").pop() || filePath;
-                setStatus("Loading " + basename + "...");
+                setStatus("Loading " + getDisplayName(className) + " point cloud...");
                 var response = await fetch(filePath);
                 if (!response.ok) {
                     throw new Error("HTTP " + response.status);
@@ -480,7 +487,7 @@
                 setPointCloud(parsed);
                 setStatus((parsed.positions.length / 3).toLocaleString() + " points");
             } catch (error) {
-                setStatus("Failed to load " + filePath);
+                setStatus("Failed to load " + getDisplayName(className) + " point cloud");
                 console.error(error);
             }
         }
@@ -499,7 +506,7 @@
         }
 
         CLASS_NAMES.forEach(function (name) {
-            var cardBits = createCard(name);
+            var cardBits = createCard(getDisplayName(name));
             showcase.appendChild(cardBits.card);
             createViewer(cardBits.viewer, cardBits.status, "./data/" + name + "_sample.xyzrgb", name);
         });
