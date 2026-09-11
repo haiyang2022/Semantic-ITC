@@ -44,11 +44,7 @@
             <h2>Download and extract</h2>
             <div class="download-list">
                 <div class="download-row">
-                    <strong>Raw-local point clouds</strong>
-                    <span class="status-pending">Coming soon</span>
-                </div>
-                <div class="download-row">
-                    <strong>Gravity-aligned point clouds</strong>
+                    <strong>Point clouds</strong>
                     <span class="status-pending">Coming soon</span>
                 </div>
                 <div class="download-row">
@@ -64,34 +60,19 @@
             <div class="code-block"><pre><code>sha256sum -c SHA256SUMS.txt</code></pre></div>
             <h3>Extract archives</h3>
             <div class="code-block"><pre><code>mkdir -p Semantic-ITC
-tar -xf Semantic-ITC_raw-local.tar -C Semantic-ITC
-tar -xf Semantic-ITC_gravity-aligned.tar -C Semantic-ITC</code></pre></div>
+tar -xf Semantic-ITC_raw-local.tar -C Semantic-ITC</code></pre></div>
         </section>
 
         <section id="dataset" class="docs-section">
             <h2>Dataset structure</h2>
-            <p>Both coordinate versions contain the same 52 public sequence IDs, frame timestamps, semantic labels, and sequence-level split. The split contains 37 training, 5 validation, and 10 test sequences.</p>
+            <p>The dataset contains 52 public sequence IDs, with 37 training, 5 validation, and 10 test sequences.</p>
             <div class="code-block"><pre><code>Semantic-ITC/
-├── point_clouds_local_bin/
-│   ├── train/&lt;sequence_id&gt;/&lt;timestamp&gt;.bin
-│   ├── val/&lt;sequence_id&gt;/&lt;timestamp&gt;.bin
-│   ├── test/&lt;sequence_id&gt;/&lt;timestamp&gt;.bin
-│   └── splits/{train,val,test}.txt
-└── point_clouds_gravity_aligned_bin/
+└── point_clouds_local_bin/
     ├── train/&lt;sequence_id&gt;/&lt;timestamp&gt;.bin
     ├── val/&lt;sequence_id&gt;/&lt;timestamp&gt;.bin
     ├── test/&lt;sequence_id&gt;/&lt;timestamp&gt;.bin
     └── splits/{train,val,test}.txt</code></pre></div>
-            <div class="coordinate-list">
-                <div class="coordinate-row">
-                    <strong>Raw-local</strong>
-                    <span>Original per-frame LiDAR sensor coordinates. This is the main benchmark coordinate version.</span>
-                </div>
-                <div class="coordinate-row">
-                    <strong>Gravity-aligned</strong>
-                    <span>Per-frame LiDAR-origin coordinates with roll and pitch leveled. Heading and yaw are preserved; translation is not applied.</span>
-                </div>
-            </div>
+            <p>Point clouds use original per-frame LiDAR sensor coordinates (raw-local).</p>
         </section>
 
         <section id="format" class="docs-section">
@@ -128,14 +109,14 @@ labels = points["label"]</code></pre></div>
             <div class="docs-table-wrap">
                 <table class="docs-table">
                     <thead>
-                        <tr><th>Method</th><th>Raw mIoU</th><th>Raw mAcc</th><th>Raw OA</th><th>Gravity mIoU</th><th>Gravity mAcc</th><th>Gravity OA</th></tr>
+                        <tr><th>Method</th><th>mIoU</th><th>mAcc</th><th>OA</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td><a href="https://github.com/haiyang2022/WaffleIron" target="_blank" rel="noreferrer">WaffleIron</a></td><td>79.27</td><td>87.38</td><td>92.99</td><td>78.44</td><td>88.88</td><td>93.18</td></tr>
-                        <tr><td><a href="https://github.com/haiyang2022/Pointcept" target="_blank" rel="noreferrer">PTv3</a></td><td>78.19</td><td>88.10</td><td>93.26</td><td>76.66</td><td>87.01</td><td>92.94</td></tr>
-                        <tr><td><a href="https://github.com/haiyang2022/HARPNeXt" target="_blank" rel="noreferrer">HARP-NeXt</a></td><td>75.20</td><td>84.71</td><td>92.65</td><td>64.95</td><td>79.55</td><td>90.59</td></tr>
-                        <tr><td><a href="https://github.com/haiyang2022/SalsaNext" target="_blank" rel="noreferrer">SalsaNext</a></td><td>69.80</td><td>86.88</td><td>89.64</td><td>56.48</td><td>78.93</td><td>83.86</td></tr>
-                        <tr><td><a href="https://github.com/haiyang2022/Cylinder3D" target="_blank" rel="noreferrer">Cylinder3D</a></td><td>69.29</td><td>77.81</td><td>91.97</td><td>76.31</td><td>86.14</td><td>93.01</td></tr>
+                        <tr><td><a href="https://github.com/haiyang2022/WaffleIron" target="_blank" rel="noreferrer">WaffleIron</a></td><td>79.27</td><td>87.38</td><td>92.99</td></tr>
+                        <tr><td><a href="https://github.com/haiyang2022/Pointcept" target="_blank" rel="noreferrer">PTv3</a></td><td>78.19</td><td>88.10</td><td>93.26</td></tr>
+                        <tr><td><a href="https://github.com/haiyang2022/HARPNeXt" target="_blank" rel="noreferrer">HARP-NeXt</a></td><td>75.20</td><td>84.71</td><td>92.65</td></tr>
+                        <tr><td><a href="https://github.com/haiyang2022/SalsaNext" target="_blank" rel="noreferrer">SalsaNext</a></td><td>69.80</td><td>86.88</td><td>89.64</td></tr>
+                        <tr><td><a href="https://github.com/haiyang2022/Cylinder3D" target="_blank" rel="noreferrer">Cylinder3D</a></td><td>69.29</td><td>77.81</td><td>91.97</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -146,18 +127,13 @@ labels = points["label"]</code></pre></div>
             <h2>Benchmark checkpoints</h2>
             <div class="docs-table-wrap">
                 <table class="docs-table">
-                    <thead><tr><th>Method</th><th>Coordinates</th><th>Filename</th><th>Download</th></tr></thead>
+                    <thead><tr><th>Method</th><th>Filename</th><th>Download</th></tr></thead>
                     <tbody>
-                        <tr><td>WaffleIron</td><td>Raw-local</td><td><code>waffleiron_raw_local_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
-                        <tr><td>WaffleIron</td><td>Gravity-aligned</td><td><code>waffleiron_gravity_aligned_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
-                        <tr><td>PTv3</td><td>Raw-local</td><td><code>ptv3_raw_local_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
-                        <tr><td>PTv3</td><td>Gravity-aligned</td><td><code>ptv3_gravity_aligned_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
-                        <tr><td>HARP-NeXt</td><td>Raw-local</td><td><code>harpnext_raw_local_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
-                        <tr><td>HARP-NeXt</td><td>Gravity-aligned</td><td><code>harpnext_gravity_aligned_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
-                        <tr><td>SalsaNext</td><td>Raw-local</td><td><code>salsanext_raw_local_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
-                        <tr><td>SalsaNext</td><td>Gravity-aligned</td><td><code>salsanext_gravity_aligned_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
-                        <tr><td>Cylinder3D</td><td>Raw-local</td><td><code>cylinder3d_raw_local_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
-                        <tr><td>Cylinder3D</td><td>Gravity-aligned</td><td><code>cylinder3d_gravity_aligned_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
+                        <tr><td>WaffleIron</td><td><code>waffleiron_raw_local_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
+                        <tr><td>PTv3</td><td><code>ptv3_raw_local_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
+                        <tr><td>HARP-NeXt</td><td><code>harpnext_raw_local_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
+                        <tr><td>SalsaNext</td><td><code>salsanext_raw_local_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
+                        <tr><td>Cylinder3D</td><td><code>cylinder3d_raw_local_best_val_miou.pt</code></td><td><span class="status-pending">Coming soon</span></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -167,19 +143,14 @@ labels = points["label"]</code></pre></div>
             <h2>Training and evaluation</h2>
             <p>Install each method according to its repository README. Semantic-ITC requires no additional dataset-specific package. SalsaNext, WaffleIron, and HARP-NeXt require TensorBoard. Cylinder3D requires a CUDA-compatible spconv installation. Pointcept requires pointops, spconv, and PyTorch Geometric as documented by Pointcept; the provided PTv3 configuration does not require FlashAttention.</p>
 
-            <h3>Paths and coordinate version</h3>
+            <h3>Paths</h3>
             <div class="code-block"><pre><code>export ITC_CODE_ROOT=/path/to/directory/containing/the/five/repositories
 export ITC_RUN_ROOT=/path/to/output/directory
 export ITC_CHECKPOINT_ROOT=/path/to/downloaded/checkpoints
 export GPU_ID=0
 
-# Main benchmark
 export ITC_COORDINATES=raw_local
-export ITC_DATASET=/path/to/point_clouds_local_bin
-
-# For gravity-aligned experiments, use instead:
-# export ITC_COORDINATES=gravity_aligned
-# export ITC_DATASET=/path/to/point_clouds_gravity_aligned_bin</code></pre></div>
+export ITC_DATASET=/path/to/point_clouds_local_bin</code></pre></div>
 
             <article class="method-section">
                 <div class="method-title-row"><h3>WaffleIron</h3><a href="https://github.com/haiyang2022/WaffleIron" target="_blank" rel="noreferrer">Repository &nearr;</a></div>
