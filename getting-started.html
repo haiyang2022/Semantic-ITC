@@ -73,6 +73,72 @@ tar -xf Semantic-ITC_raw-local.tar -C Semantic-ITC</code></pre></div>
     ├── test/&lt;sequence_id&gt;/&lt;timestamp&gt;.bin
     └── splits/{train,val,test}.txt</code></pre></div>
             <p>Point clouds use original per-frame LiDAR sensor coordinates (raw-local).</p>
+
+            <details id="sequence-id-mapping">
+                <summary>Sequence ID mapping (Appendix B to 4TU)</summary>
+                <p>Appendix B and the 4TU release use different sequence IDs, with identical train, validation, and test splits.</p>
+                <div class="docs-table-wrap">
+                    <table class="docs-table" aria-label="Appendix B to 4TU sequence ID mapping">
+                        <thead>
+                            <tr><th scope="col">Paper ID</th><th scope="col">4TU ID</th><th scope="col">Split</th><th scope="col">Scene type</th><th scope="col">Frames</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>21</td><td>test</td><td>Classroom</td><td>950</td></tr>
+                            <tr><td>2</td><td>19</td><td>test</td><td>Classroom</td><td>1240</td></tr>
+                            <tr><td>3</td><td>17</td><td>test</td><td>Classroom</td><td>971</td></tr>
+                            <tr><td>4</td><td>47</td><td>test</td><td>Corridor</td><td>3456</td></tr>
+                            <tr><td>5</td><td>01</td><td>test</td><td>Meeting room</td><td>620</td></tr>
+                            <tr><td>6</td><td>02</td><td>test</td><td>Meeting room</td><td>497</td></tr>
+                            <tr><td>7</td><td>03</td><td>test</td><td>Meeting room</td><td>582</td></tr>
+                            <tr><td>8</td><td>20</td><td>test</td><td>Office</td><td>664</td></tr>
+                            <tr><td>9</td><td>18</td><td>test</td><td>Office</td><td>1017</td></tr>
+                            <tr><td>10</td><td>49</td><td>test</td><td>Study area</td><td>3340</td></tr>
+                            <tr><td>11</td><td>25</td><td>train</td><td>Classroom</td><td>979</td></tr>
+                            <tr><td>12</td><td>24</td><td>train</td><td>Classroom</td><td>946</td></tr>
+                            <tr><td>13</td><td>23</td><td>train</td><td>Classroom</td><td>841</td></tr>
+                            <tr><td>14</td><td>22</td><td>train</td><td>Classroom</td><td>864</td></tr>
+                            <tr><td>15</td><td>08</td><td>train</td><td>Classroom</td><td>778</td></tr>
+                            <tr><td>16</td><td>07</td><td>train</td><td>Classroom</td><td>759</td></tr>
+                            <tr><td>17</td><td>06</td><td>train</td><td>Classroom</td><td>1130</td></tr>
+                            <tr><td>18</td><td>09</td><td>train</td><td>Classroom</td><td>871</td></tr>
+                            <tr><td>19</td><td>10</td><td>val</td><td>Classroom</td><td>1156</td></tr>
+                            <tr><td>20</td><td>48</td><td>train</td><td>Corridor</td><td>2776</td></tr>
+                            <tr><td>21</td><td>39</td><td>train</td><td>Corridor</td><td>1968</td></tr>
+                            <tr><td>22</td><td>26</td><td>train</td><td>Meeting room</td><td>529</td></tr>
+                            <tr><td>23</td><td>05</td><td>train</td><td>Meeting room</td><td>651</td></tr>
+                            <tr><td>24</td><td>04</td><td>train</td><td>Meeting room</td><td>693</td></tr>
+                            <tr><td>25</td><td>11</td><td>train</td><td>Meeting room</td><td>435</td></tr>
+                            <tr><td>26</td><td>12</td><td>train</td><td>Meeting room</td><td>427</td></tr>
+                            <tr><td>27</td><td>51</td><td>val</td><td>Study area</td><td>2332</td></tr>
+                            <tr><td>28</td><td>50</td><td>train</td><td>Study area</td><td>1672</td></tr>
+                            <tr><td>29</td><td>27</td><td>train</td><td>Classroom</td><td>824</td></tr>
+                            <tr><td>30</td><td>31</td><td>train</td><td>Classroom</td><td>1582</td></tr>
+                            <tr><td>31</td><td>52</td><td>val</td><td>Corridor</td><td>1845</td></tr>
+                            <tr><td>32</td><td>40</td><td>train</td><td>Corridor</td><td>3190</td></tr>
+                            <tr><td>33</td><td>41</td><td>train</td><td>Corridor</td><td>3513</td></tr>
+                            <tr><td>34</td><td>14</td><td>val</td><td>Meeting room</td><td>951</td></tr>
+                            <tr><td>35</td><td>13</td><td>train</td><td>Meeting room</td><td>935</td></tr>
+                            <tr><td>36</td><td>29</td><td>train</td><td>Office</td><td>1019</td></tr>
+                            <tr><td>37</td><td>28</td><td>train</td><td>Office</td><td>1062</td></tr>
+                            <tr><td>38</td><td>30</td><td>val</td><td>Office</td><td>1016</td></tr>
+                            <tr><td>39</td><td>44</td><td>train</td><td>Study area</td><td>3758</td></tr>
+                            <tr><td>40</td><td>45</td><td>train</td><td>Study area</td><td>4768</td></tr>
+                            <tr><td>41</td><td>32</td><td>train</td><td>Classroom</td><td>1183</td></tr>
+                            <tr><td>42</td><td>33</td><td>train</td><td>Classroom</td><td>1186</td></tr>
+                            <tr><td>43</td><td>42</td><td>train</td><td>Corridor</td><td>2904</td></tr>
+                            <tr><td>44</td><td>43</td><td>train</td><td>Corridor</td><td>3490</td></tr>
+                            <tr><td>45</td><td>34</td><td>train</td><td>Meeting room</td><td>575</td></tr>
+                            <tr><td>46</td><td>16</td><td>train</td><td>Meeting room</td><td>973</td></tr>
+                            <tr><td>47</td><td>15</td><td>train</td><td>Meeting room</td><td>960</td></tr>
+                            <tr><td>48</td><td>35</td><td>train</td><td>Office</td><td>1304</td></tr>
+                            <tr><td>49</td><td>38</td><td>train</td><td>Office</td><td>989</td></tr>
+                            <tr><td>50</td><td>36</td><td>train</td><td>Office</td><td>2278</td></tr>
+                            <tr><td>51</td><td>37</td><td>train</td><td>Office</td><td>1101</td></tr>
+                            <tr><td>52</td><td>46</td><td>train</td><td>Study area</td><td>4558</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
         </section>
 
         <section id="format" class="docs-section">
