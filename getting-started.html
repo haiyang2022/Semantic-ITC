@@ -74,11 +74,11 @@ tar -xf Semantic-ITC_raw-local.tar -C Semantic-ITC</code></pre></div>
     └── splits/{train,val,test}.txt</code></pre></div>
             <p>Point clouds use original per-frame LiDAR sensor coordinates (raw-local).</p>
 
-            <details id="sequence-id-mapping">
-                <summary>Sequence ID mapping (Appendix B to 4TU)</summary>
+            <section id="sequence-id-mapping" aria-labelledby="sequence-id-mapping-heading">
+                <h3 id="sequence-id-mapping-heading"><strong>Sequence ID mapping (Appendix B to 4TU)</strong></h3>
                 <p>Appendix B and the 4TU release use different sequence IDs, with identical train, validation, and test splits.</p>
                 <div class="docs-table-wrap">
-                    <table class="docs-table" aria-label="Appendix B to 4TU sequence ID mapping">
+                    <table class="docs-table" aria-labelledby="sequence-id-mapping-heading">
                         <thead>
                             <tr><th scope="col">Paper ID</th><th scope="col">4TU ID</th><th scope="col">Split</th><th scope="col">Scene type</th><th scope="col">Frames</th></tr>
                         </thead>
@@ -88,6 +88,8 @@ tar -xf Semantic-ITC_raw-local.tar -C Semantic-ITC</code></pre></div>
                             <tr><td>3</td><td>17</td><td>test</td><td>Classroom</td><td>971</td></tr>
                             <tr><td>4</td><td>47</td><td>test</td><td>Corridor</td><td>3456</td></tr>
                             <tr><td>5</td><td>01</td><td>test</td><td>Meeting room</td><td>620</td></tr>
+                        </tbody>
+                        <tbody id="sequence-id-mapping-more">
                             <tr><td>6</td><td>02</td><td>test</td><td>Meeting room</td><td>497</td></tr>
                             <tr><td>7</td><td>03</td><td>test</td><td>Meeting room</td><td>582</td></tr>
                             <tr><td>8</td><td>20</td><td>test</td><td>Office</td><td>664</td></tr>
@@ -138,7 +140,23 @@ tar -xf Semantic-ITC_raw-local.tar -C Semantic-ITC</code></pre></div>
                         </tbody>
                     </table>
                 </div>
-            </details>
+                <button type="button" class="btn btn-default" id="sequence-id-mapping-toggle" aria-controls="sequence-id-mapping-more" aria-expanded="false" hidden>Show all 52 sequences</button>
+                <script>
+                    (() => {
+                        const remainingRows = document.getElementById('sequence-id-mapping-more');
+                        const toggle = document.getElementById('sequence-id-mapping-toggle');
+                        remainingRows.hidden = true;
+                        toggle.hidden = false;
+
+                        toggle.addEventListener('click', () => {
+                            const expanded = remainingRows.hidden;
+                            remainingRows.hidden = !expanded;
+                            toggle.setAttribute('aria-expanded', String(expanded));
+                            toggle.textContent = expanded ? 'Show fewer sequences' : 'Show all 52 sequences';
+                        });
+                    })();
+                </script>
+            </section>
         </section>
 
         <section id="format" class="docs-section">
