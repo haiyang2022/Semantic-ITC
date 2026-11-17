@@ -17,7 +17,7 @@
             <div class="nav-brand"><a href="index.html">Semantic-ITC</a></div>
             <ul class="nav-menu">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="#dataset">Dataset</a></li>
+                <li><a href="#download">Data downloads</a></li>
                 <li><a href="#checkpoints">Checkpoints</a></li>
                 <li><a href="#methods">Methods</a></li>
             </ul>
@@ -42,23 +42,110 @@
 
         <section id="download" class="docs-section">
             <h2>Download and extract</h2>
+            <p>For the semantic segmentation benchmark, download the point cloud archive only. RGB images are optional and can be downloaded by sequence.</p>
             <div class="download-list">
                 <div class="download-row">
-                    <strong>Point clouds</strong>
-                    <span class="status-pending">Coming soon</span>
+                    <strong>Point clouds (raw-local)</strong>
+                    <a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/11478126-b882-403a-b90c-c3674d558071">Download point clouds (17.2 GB)</a>
                 </div>
                 <div class="download-row">
-                    <strong>Images</strong>
-                    <span class="status-pending">Coming soon</span>
+                    <strong>RGB images</strong>
+                    <a href="#rgb-image-downloads">Browse 52 image archives (177.8 GB total)</a>
                 </div>
                 <div class="download-row">
-                    <strong>Other resources</strong>
-                    <span class="status-pending">Coming soon</span>
+                    <strong>Poses and calibration</strong>
+                    <div><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/87a80e8d-228e-43cd-a969-6579926a4be3">Download poses (8.6 MB)</a> · <a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/e9e282d2-59c6-480b-b4e9-6bfa8b08bd65">Camera–LiDAR calibration</a></div>
                 </div>
             </div>
-            <h3>Verify archives</h3>
+            <p><a href="https://data.4tu.nl/datasets/00d2e20b-7a23-4f64-bb83-051cf69e6bb7">4TU.ResearchData dataset record</a> · <a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/d3f8f37e-c8ec-40bf-a2c5-5394a451dc61">File formats</a></p>
+
+            <details id="rgb-image-downloads">
+                <summary><strong>RGB image archives by sequence</strong></summary>
+                <p><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/62767952-2c62-442c-8ab1-6e6940e0aaf6">Image archive manifest</a></p>
+                <h4>Training (37 sequences)</h4>
+                <table class="format-table" aria-label="Training RGB archives">
+                    <thead><tr><th scope="col">4TU sequence ID</th><th scope="col">Archive</th><th scope="col">Size</th></tr></thead>
+                    <tbody>
+                        <tr><th scope="row">04</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/e549bcd9-6945-4311-a760-135570cca7e8">train/04.tar</a></td><td>1.72 GB</td></tr>
+                        <tr><th scope="row">05</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/8a5e8298-c09c-4ae6-997a-691f2f880d74">train/05.tar</a></td><td>1.63 GB</td></tr>
+                        <tr><th scope="row">06</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/498744ad-c5d5-4878-b3fb-47fe268e55c7">train/06.tar</a></td><td>2.51 GB</td></tr>
+                        <tr><th scope="row">07</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/c26aafe9-112d-45ed-87f2-526aadb6b644">train/07.tar</a></td><td>1.67 GB</td></tr>
+                        <tr><th scope="row">08</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/022f0c3d-24c2-4fa5-8a95-a138ad1d5dc4">train/08.tar</a></td><td>1.82 GB</td></tr>
+                        <tr><th scope="row">09</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/c2567a73-70a6-4452-ac9c-3aa9dc66d321">train/09.tar</a></td><td>2.13 GB</td></tr>
+                        <tr><th scope="row">11</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/64f9b059-40fe-450d-a545-a446587bbd9e">train/11.tar</a></td><td>1.09 GB</td></tr>
+                        <tr><th scope="row">12</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/7a93f3bb-fddd-4d80-b797-52f38cec9fd3">train/12.tar</a></td><td>1.06 GB</td></tr>
+                        <tr><th scope="row">13</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/d62c3b6d-5351-4023-937d-36a864de1f4e">train/13.tar</a></td><td>2.32 GB</td></tr>
+                        <tr><th scope="row">15</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/66e1711c-2835-43ff-bc46-a5b5cd22a87d">train/15.tar</a></td><td>2.40 GB</td></tr>
+                        <tr><th scope="row">16</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/80453327-2003-4e90-9adc-ec174acec383">train/16.tar</a></td><td>2.49 GB</td></tr>
+                        <tr><th scope="row">22</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/c0049414-6035-49fa-b59d-fe8a21e11562">train/22.tar</a></td><td>1.71 GB</td></tr>
+                        <tr><th scope="row">23</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/2b504ae9-41c5-41ff-943c-8a45574be4e5">train/23.tar</a></td><td>1.68 GB</td></tr>
+                        <tr><th scope="row">24</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/3a73a734-7a41-4a61-a027-f0f147c04ed4">train/24.tar</a></td><td>2.03 GB</td></tr>
+                        <tr><th scope="row">25</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/ac4f40bc-1d60-46f2-a3ac-c14a75c089ec">train/25.tar</a></td><td>2.02 GB</td></tr>
+                        <tr><th scope="row">26</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/51ac35fa-0fd4-4be5-aa4f-be032fbed0ec">train/26.tar</a></td><td>1.19 GB</td></tr>
+                        <tr><th scope="row">27</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/f4c54816-7d26-4be3-9240-832500429261">train/27.tar</a></td><td>1.82 GB</td></tr>
+                        <tr><th scope="row">28</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/5454888a-6d6e-49b8-93b2-4b9ae16d6891">train/28.tar</a></td><td>2.50 GB</td></tr>
+                        <tr><th scope="row">29</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/add743cc-588e-41b3-a0ff-2d9f8bc45e2d">train/29.tar</a></td><td>2.49 GB</td></tr>
+                        <tr><th scope="row">31</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/6a4c7aba-ba9b-4e90-9026-5d079d0c5822">train/31.tar</a></td><td>3.46 GB</td></tr>
+                        <tr><th scope="row">32</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/608a2026-b30d-40b7-92ca-c255e68155d6">train/32.tar</a></td><td>2.63 GB</td></tr>
+                        <tr><th scope="row">33</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/e6b005c5-8b5b-42b9-87c8-5591700b3c4a">train/33.tar</a></td><td>2.60 GB</td></tr>
+                        <tr><th scope="row">34</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/1ffa89f4-f4c4-4204-8c75-5181f7d3dadb">train/34.tar</a></td><td>1.43 GB</td></tr>
+                        <tr><th scope="row">35</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/b22998a2-6de8-41e8-a370-5b982599d388">train/35.tar</a></td><td>3.16 GB</td></tr>
+                        <tr><th scope="row">36</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/17851834-1a5b-4f4a-95cc-e9c7692fdfc7">train/36.tar</a></td><td>5.45 GB</td></tr>
+                        <tr><th scope="row">37</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/673725cf-fbb0-4dcb-ae94-050dff9a2133">train/37.tar</a></td><td>2.64 GB</td></tr>
+                        <tr><th scope="row">38</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/466069e8-d3a0-4737-9826-9ba82db9a6d8">train/38.tar</a></td><td>2.40 GB</td></tr>
+                        <tr><th scope="row">39</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/ff5fb327-bc65-440f-92aa-ecc9ee9f4bce">train/39.tar</a></td><td>4.66 GB</td></tr>
+                        <tr><th scope="row">40</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/1b23591f-54c9-470b-98c3-a8bac17c5d5e">train/40.tar</a></td><td>7.22 GB</td></tr>
+                        <tr><th scope="row">41</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/1cea977b-44ca-4524-b8db-c1c923fd6e9c">train/41.tar</a></td><td>7.94 GB</td></tr>
+                        <tr><th scope="row">42</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/33ceaad6-9483-46a7-afb5-b6e1fd0c44b0">train/42.tar</a></td><td>6.38 GB</td></tr>
+                        <tr><th scope="row">43</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/2484990b-7fe4-430e-b765-40318dc3e2d7">train/43.tar</a></td><td>7.76 GB</td></tr>
+                        <tr><th scope="row">44</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/924f1b17-dcb4-4e31-af0e-1172ca742fb2">train/44.tar</a></td><td>6.79 GB</td></tr>
+                        <tr><th scope="row">45</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/aa69aa75-8a04-4647-96f2-3e6440d4e586">train/45.tar</a></td><td>10.04 GB</td></tr>
+                        <tr><th scope="row">46</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/49393bf3-1f0c-4fcd-b059-03c8c49176de">train/46.tar</a></td><td>8.66 GB</td></tr>
+                        <tr><th scope="row">48</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/c4367034-9ba3-4d2e-b7c2-b37fe8e5ceb1">train/48.tar</a></td><td>6.35 GB</td></tr>
+                        <tr><th scope="row">50</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/9434521b-5f50-4826-aaea-6294beeb5a0e">train/50.tar</a></td><td>4.06 GB</td></tr>
+                    </tbody>
+                </table>
+                <h4>Validation (5 sequences)</h4>
+                <table class="format-table" aria-label="Validation RGB archives">
+                    <thead><tr><th scope="col">4TU sequence ID</th><th scope="col">Archive</th><th scope="col">Size</th></tr></thead>
+                    <tbody>
+                        <tr><th scope="row">10</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/8cab8ffe-140e-469a-a9ab-7c7779faf848">val/10.tar</a></td><td>2.89 GB</td></tr>
+                        <tr><th scope="row">14</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/f95cc169-0b20-4341-b49a-ab6658bd4554">val/14.tar</a></td><td>2.39 GB</td></tr>
+                        <tr><th scope="row">30</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/b741bffc-bc17-4e7c-be1c-56232a78f349">val/30.tar</a></td><td>2.56 GB</td></tr>
+                        <tr><th scope="row">51</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/43353f6a-5a64-4de8-8439-38861d3e9414">val/51.tar</a></td><td>5.31 GB</td></tr>
+                        <tr><th scope="row">52</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/2087504b-7528-47ac-9df1-1d6964144c55">val/52.tar</a></td><td>4.45 GB</td></tr>
+                    </tbody>
+                </table>
+                <h4>Test (10 sequences)</h4>
+                <table class="format-table" aria-label="Test RGB archives">
+                    <thead><tr><th scope="col">4TU sequence ID</th><th scope="col">Archive</th><th scope="col">Size</th></tr></thead>
+                    <tbody>
+                        <tr><th scope="row">01</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/1cf5e804-4f6f-4798-9574-e4e8af043116">test/01.tar</a></td><td>1.54 GB</td></tr>
+                        <tr><th scope="row">02</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/384faff6-59ef-4396-8110-13d40a80ac50">test/02.tar</a></td><td>1.23 GB</td></tr>
+                        <tr><th scope="row">03</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/ce435964-80c8-4c2f-8d63-d9829df8b57e">test/03.tar</a></td><td>1.46 GB</td></tr>
+                        <tr><th scope="row">17</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/355d7687-ec5a-4b24-9133-f8ec001762eb">test/17.tar</a></td><td>2.07 GB</td></tr>
+                        <tr><th scope="row">18</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/f6c3daa2-642e-4550-ae44-1f4adfe91deb">test/18.tar</a></td><td>2.32 GB</td></tr>
+                        <tr><th scope="row">19</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/ddcb2f63-9be4-48de-96f3-990495730136">test/19.tar</a></td><td>2.65 GB</td></tr>
+                        <tr><th scope="row">20</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/4c9df6d7-82c4-4872-a27b-ff9ff67178e0">test/20.tar</a></td><td>1.66 GB</td></tr>
+                        <tr><th scope="row">21</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/aba3999a-a92f-480f-a104-18d2552dc2b8">test/21.tar</a></td><td>1.87 GB</td></tr>
+                        <tr><th scope="row">47</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/1c9cca9c-cbec-4f96-aa2e-1ef2a92d96c9">test/47.tar</a></td><td>8.21 GB</td></tr>
+                        <tr><th scope="row">49</th><td><a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/b957bc80-14a3-475a-9ded-1e6f7a8e8548">test/49.tar</a></td><td>7.23 GB</td></tr>
+                    </tbody>
+                </table>
+            </details>
+            <script>
+                document.querySelector('a[href="#rgb-image-downloads"]').addEventListener('click', () => {
+                    document.getElementById('rgb-image-downloads').open = true;
+                });
+                if (window.location.hash === '#rgb-image-downloads') {
+                    document.getElementById('rgb-image-downloads').open = true;
+                }
+            </script>
+
+            <h3>Verify the point cloud archive</h3>
+            <p>Download <a href="https://data.4tu.nl/file/00d2e20b-7a23-4f64-bb83-051cf69e6bb7/7518b58b-70aa-47be-9fe5-0d987c334102">SHA256SUMS.txt</a> to the same directory as the point cloud archive.</p>
             <div class="code-block"><pre><code>sha256sum -c SHA256SUMS.txt</code></pre></div>
-            <h3>Extract archives</h3>
+            <h3>Extract point clouds</h3>
             <div class="code-block"><pre><code>mkdir -p Semantic-ITC
 tar -xf Semantic-ITC_raw-local.tar -C Semantic-ITC</code></pre></div>
         </section>
